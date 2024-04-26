@@ -1,6 +1,3 @@
-# Voita
-Voita – speech-to-text notes for ukrainian language
-
 # Voita structure
 
 ## Features folder structure
@@ -28,5 +25,3 @@ Voita – speech-to-text notes for ukrainian language
 ‣ data
     Repositories, DTOs, Data sources
 ```
-
-## [FIGMA](https://www.figma.com/file/qmJaOhwZUHGY8BdGtvn6I1/Notua?type=design&node-id=0%3A1&mode=design&t=2lQzAo7UuZv8npx6-1)
