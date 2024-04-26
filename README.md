@@ -1,4 +1,4 @@
-# Notua
+# Voita
 Notua – speech-to-text notes for ukrainian language
 
 
