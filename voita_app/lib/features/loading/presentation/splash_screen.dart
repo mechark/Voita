@@ -10,6 +10,15 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
 
   @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.of(context).pushReplacementNamed('/voita_home');
+    }); 
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -17,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
           'Voita',
           style: TextStyle(
             fontFamily: 'Open Sans',
-            fontSize: 30,
+            fontSize: 50,
             fontWeight: FontWeight.bold
           ),
         )
