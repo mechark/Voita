@@ -9,10 +9,25 @@ class NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    return Container(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [ 
+        const Padding(
+          padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+          child: Text(
+          "Суб, 20 квітня",
+          style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Open Sans',
+                fontSize: 20,
+                color: AppColor.spaceGray
+        )),
+        ),   
+        Container(
+        constraints: const BoxConstraints(minWidth: 400, maxWidth: 500),
         padding: const EdgeInsets.all(15),
-        margin: EdgeInsets.all(20),
-        decoration: BoxDecoration(
+        margin: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
           color: AppColor.purplishBlue,
         ),
@@ -22,26 +37,26 @@ class NoteCard extends StatelessWidget {
           children: [
             Text(
               note.name,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Open Sans'
               ),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Container(
               padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),
               color: Colors.white,
               ),
               child: Text(note.tags!)
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(note.text),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(note.date.toString()),
           ],
         ),
-    );
+    )]);
   }
 }

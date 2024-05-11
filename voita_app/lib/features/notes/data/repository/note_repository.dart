@@ -1,21 +1,20 @@
-import 'package:voita_app/features/notes/data/datasources/db_provider.dart';
 import 'package:voita_app/features/notes/data/repository/note_repository_abs.dart';
 import 'package:postgres/postgres.dart';
 import 'package:voita_app/features/notes/models/note_model.dart';
+import 'package:voita_app/utils/data/db_provider.dart';
 
 class NoteRepositoryImpl implements NoteRepository {
-  Future<Connection> _connection;
+  final Future<Connection> _connection;
 
   NoteRepositoryImpl() :
-     _connection = DBProvider().connection();
+    _connection = DBProvider.getConnection();
 
   @override
   Future<List<Note>> getAllNotes() async {
     final conn = await _connection;
     final notes = await conn.execute("select * from notes");
-    
-    final result = notes.map((row) => Note.fromMap(row.toColumnMap())).toList();
-    print(result[0]);
+
+    conn.close();
     return notes.map((row) => Note.fromMap(row.toColumnMap())).toList();
   }
 
@@ -23,6 +22,8 @@ class NoteRepositoryImpl implements NoteRepository {
   Future<Note> getNote(int id) async {
     final conn = await _connection;
     final note = await conn.execute("SELECT * FROM Notes WHERE id=$id");
+
+    conn.close();
     return note.cast()[0];
   }
 }

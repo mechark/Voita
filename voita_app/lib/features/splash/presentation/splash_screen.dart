@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({ Key? key }) : super(key: key);
 
@@ -13,7 +14,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pushReplacementNamed('/voita_home');
     }); 
   }

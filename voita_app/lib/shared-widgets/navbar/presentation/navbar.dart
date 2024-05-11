@@ -23,7 +23,7 @@ void _homeOnPressed() {
                   IconButton(
                       onPressed: () => {
                         if (Navigator.of(context).canPop()) {
-                          Navigator.pushReplacementNamed(context, '/voita_screen')
+                          Navigator.pushReplacementNamed(context, '/voita_home')
                         }
                       },
                       icon: ImageIcon(AssetImage("assets/home.png")),

@@ -1,6 +1,3 @@
-import 'dart:ffi';
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:voita_app/features/notes/data/repository/note_repository.dart';
@@ -10,14 +7,16 @@ part 'notes_event.dart';
 part 'notes_state.dart';
 
 class NotesBloc extends Bloc<NotesEvent, NotesState> {
-  final NoteRepositoryImpl _noteRepository;
+  late NoteRepositoryImpl _noteRepository;
 
-  NotesBloc(this._noteRepository) : super(NotesInitial()) {
+  NotesBloc() : super(NotesInitial()) {
     on<LoadNotes>(_onLoadNotes);
     on<AddNote>(_onAddNote);
     on<EditNote>(_editNote);
     on<DeleteNote>(_deleteNote);
     on<FailedToLoad>(_failedToLoad);
+
+    _noteRepository = NoteRepositoryImpl();
   }
 
   void _onLoadNotes(LoadNotes event, Emitter<NotesState> emit) async {
