@@ -20,7 +20,7 @@
     Widgets, States, Controllers
 ‣ application  
     Services
-‣ domain
+‣ models
     Models
 ‣ data
     Repositories, DTOs, Data sources
