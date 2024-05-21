@@ -44,10 +44,10 @@ class EditNote extends NotesEvent {
 }
 
 class DeleteNote extends NotesEvent {
-  final Note note;
+  final int id;
 
-  DeleteNote({required this.note});
+  DeleteNote({required this.id});
 
   @override
-  List<Object> get props => [note];
+  List<Object> get props => [id];
 }

@@ -16,4 +16,7 @@ class DBProvider {
     return await conn;
   }
 
+  static Future<void> createDB() async {
+    
+  }
 }

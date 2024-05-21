@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:voita_app/constants/app_colors.dart';
+import 'package:voita_app/features/notes-overview/bloc/notes_bloc.dart';
 import 'package:voita_app/features/recording/bloc/recording_bloc.dart';
-import 'package:voita_app/features/recording/data/repository/records_repository_impl.dart';
-import 'package:voita_app/features/recording/presentation/recording.dart';
-import 'package:voita_app/features/recording/services/recorder_service.dart';
 import 'package:voita_app/shared-widgets/navbar/presentation/navbar.dart';
+import 'package:voita_app/shared-widgets/note-appbar/note_appbar.dart';
 import 'package:voita_app/shared-widgets/record-icon/presentation/record-icon.dart';
 
-class NoteScreen extends StatefulWidget {
-  const NoteScreen({ Key? key }) : super(key: key);
+class RecordingScreen extends StatefulWidget {
+  NotesBloc ?notesBloc;
+  RecordingScreen({ Key? key, this.notesBloc }) : super(key: key);
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
 }
 
-class _NoteScreenState extends State<NoteScreen> {
+class _NoteScreenState extends State<RecordingScreen> {
   FloatingActionButtonLocation _buttonLocation = FloatingActionButtonLocation.centerFloat; 
-  // final RecorderService _recorder = RecorderService();
 
   void setMicroDown() {
     setState(() {
@@ -33,60 +32,69 @@ class _NoteScreenState extends State<NoteScreen> {
       create: (context) => RecordingBloc()..add(const OngoingRecording(text: "")),
       child: BlocBuilder<RecordingBloc, RecordingState> (builder: (context, state) {
       return Scaffold(
-          appBar: AppBar(
-            title: const Text(
-                "Нотатка",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontFamily: 'OpenSans',
-                  fontWeight: FontWeight.bold
-                ),
-              ),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                onPressed: (){}, 
-                icon: const ImageIcon(AssetImage("assets/share.png"),
-                      size: 25,
-                      color: AppColor.spaceGray,
-                )
-              )
-            ],
-          ),
+          appBar: const NoteAppBar(),
           body: BlocBuilder<RecordingBloc, RecordingState> (builder: (context, state) {
             if (state is RecordingInProgress) {
-              return Column(
+              return ListView(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+                    child: Text(
+                      state.text,
+                      style: const TextStyle(
+                        color: AppColor.spaceGray,
+                        fontSize: 18,
+                        fontFamily: "OpenSans",
+                        fontWeight: FontWeight.normal
+                      ),
+                    )
+                  )
+                ],
+              );
+            } 
+            else if (state is RecordingStopped) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                widget.notesBloc?.add(AddNote(note: state.note));
+              });
+
+              return Container(
+                padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+                child: Column(
                   children: [
-                    Text(state.text)
+                    Text(state.note.text,
+                    style: const TextStyle(
+                        color: AppColor.spaceGray,
+                        fontSize: 18,
+                        fontFamily: "OpenSans",
+                        fontWeight: FontWeight.normal
+                      )
+                    )
                   ],
-                );
-            } else {
-              print("Something went wrong");
-              return Container();
+                ),
+              );
+            }
+            else {
+              return Container(
+                child: const Text("Тут поки нічого немає"),
+              );
             }
           }),
-
         extendBody: true,
         floatingActionButtonLocation: _buttonLocation,
         floatingActionButton: BlocBuilder<RecordingBloc, RecordingState> 
             (builder: (context, state) { 
             if (state is RecordingInProgress) {
-              print("State text from widget point of view ${state.text}");
-              print("State ${state.toString()}");
               return IconButton(
-              onPressed: () {
+              onPressed: () async {
                 setMicroDown();
-                BlocProvider.of<RecordingBloc>(context).emit(const RecordingStopped());
-                //BlocProvider.of<RecordingBloc>(context).recorder.dispose();
-                print("State ${state.toString()}");
+                BlocProvider.of<RecordingBloc>(context).add(const StopRecording());
               },
-              icon: ImageIcon(AssetImage("assets/stop-button.png")),
+              icon: const ImageIcon(AssetImage("assets/stop-button.png")),
               iconSize: 90,
               color: Colors.red,
           );
           }
           else if (state is RecordingStopped) {
-              print("State ${state.toString()}");
               return const RecordIcon(color: AppColor.spaceGray);
             }
           else {

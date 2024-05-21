@@ -6,20 +6,22 @@ part 'note_model.freezed.dart';
 @freezed
 class Note with _$Note {
   const factory Note({
-    required String name,
+    required String header,
     required String text,
-    String? tags, 
     required DateTime date,
-    required int note_id,
+    required int id,
+    required int duration,
+    required String audio_location
   }) = _Note;
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
-      note_id: map['note_id'],
-      name: map['name'],
+      id: map['id'],
+      header: map['header'],
       text: map['text'],
-      tags: map['tags'],
-      date: map['date']
+      date: map['date'],
+      duration: map['duration'],
+      audio_location: map['audio_location']
     );
   }
 }

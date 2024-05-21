@@ -24,8 +24,10 @@ final class RecordingInProgress extends RecordingState {
 }
 
 final class RecordingStopped extends RecordingState {
-  const RecordingStopped();
+  final Note note;
+
+  const RecordingStopped({required this.note});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [note];
 }

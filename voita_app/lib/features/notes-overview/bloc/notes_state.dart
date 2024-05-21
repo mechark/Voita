@@ -26,3 +26,21 @@ class NotesFailedToLoad extends NotesState {
   @override
   List<Object> get props => [notes];
 }
+
+class NoteAdded extends NotesState {
+  final Note note;
+
+  const NoteAdded({required this.note});
+
+  @override
+  List<Object> get props => [note];
+}
+
+class NoteRemoved extends NotesState {
+  final int id;
+
+  const NoteRemoved({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}

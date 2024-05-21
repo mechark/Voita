@@ -1,5 +1,5 @@
-import 'package:flutter_sound/flutter_sound.dart';
+import 'dart:typed_data';
 
 abstract class RecordsRepository {
-  Future<String> getText(Stream<Food> utterance);
+  Future<String> getText(Stream<Uint8List> utterance);
 }

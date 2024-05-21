@@ -16,11 +16,12 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$Note {
-  String get name => throw _privateConstructorUsedError;
+  String get header => throw _privateConstructorUsedError;
   String get text => throw _privateConstructorUsedError;
-  String? get tags => throw _privateConstructorUsedError;
   DateTime get date => throw _privateConstructorUsedError;
-  int get note_id => throw _privateConstructorUsedError;
+  int get id => throw _privateConstructorUsedError;
+  int get duration => throw _privateConstructorUsedError;
+  String get audio_location => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $NoteCopyWith<Note> get copyWith => throw _privateConstructorUsedError;
@@ -32,7 +33,12 @@ abstract class $NoteCopyWith<$Res> {
       _$NoteCopyWithImpl<$Res, Note>;
   @useResult
   $Res call(
-      {String name, String text, String? tags, DateTime date, int note_id});
+      {String header,
+      String text,
+      DateTime date,
+      int id,
+      int duration,
+      String audio_location});
 }
 
 /// @nodoc
@@ -48,33 +54,38 @@ class _$NoteCopyWithImpl<$Res, $Val extends Note>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = null,
+    Object? header = null,
     Object? text = null,
-    Object? tags = freezed,
     Object? date = null,
-    Object? note_id = null,
+    Object? id = null,
+    Object? duration = null,
+    Object? audio_location = null,
   }) {
     return _then(_value.copyWith(
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
+      header: null == header
+          ? _value.header
+          : header // ignore: cast_nullable_to_non_nullable
               as String,
       text: null == text
           ? _value.text
           : text // ignore: cast_nullable_to_non_nullable
               as String,
-      tags: freezed == tags
-          ? _value.tags
-          : tags // ignore: cast_nullable_to_non_nullable
-              as String?,
       date: null == date
           ? _value.date
           : date // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      note_id: null == note_id
-          ? _value.note_id
-          : note_id // ignore: cast_nullable_to_non_nullable
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
               as int,
+      duration: null == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int,
+      audio_location: null == audio_location
+          ? _value.audio_location
+          : audio_location // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -87,7 +98,12 @@ abstract class _$$NoteImplCopyWith<$Res> implements $NoteCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String name, String text, String? tags, DateTime date, int note_id});
+      {String header,
+      String text,
+      DateTime date,
+      int id,
+      int duration,
+      String audio_location});
 }
 
 /// @nodoc
@@ -100,33 +116,38 @@ class __$$NoteImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = null,
+    Object? header = null,
     Object? text = null,
-    Object? tags = freezed,
     Object? date = null,
-    Object? note_id = null,
+    Object? id = null,
+    Object? duration = null,
+    Object? audio_location = null,
   }) {
     return _then(_$NoteImpl(
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
+      header: null == header
+          ? _value.header
+          : header // ignore: cast_nullable_to_non_nullable
               as String,
       text: null == text
           ? _value.text
           : text // ignore: cast_nullable_to_non_nullable
               as String,
-      tags: freezed == tags
-          ? _value.tags
-          : tags // ignore: cast_nullable_to_non_nullable
-              as String?,
       date: null == date
           ? _value.date
           : date // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      note_id: null == note_id
-          ? _value.note_id
-          : note_id // ignore: cast_nullable_to_non_nullable
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
               as int,
+      duration: null == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int,
+      audio_location: null == audio_location
+          ? _value.audio_location
+          : audio_location // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -135,26 +156,29 @@ class __$$NoteImplCopyWithImpl<$Res>
 
 class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
   const _$NoteImpl(
-      {required this.name,
+      {required this.header,
       required this.text,
-      this.tags,
       required this.date,
-      required this.note_id});
+      required this.id,
+      required this.duration,
+      required this.audio_location});
 
   @override
-  final String name;
+  final String header;
   @override
   final String text;
   @override
-  final String? tags;
-  @override
   final DateTime date;
   @override
-  final int note_id;
+  final int id;
+  @override
+  final int duration;
+  @override
+  final String audio_location;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Note(name: $name, text: $text, tags: $tags, date: $date, note_id: $note_id)';
+    return 'Note(header: $header, text: $text, date: $date, id: $id, duration: $duration, audio_location: $audio_location)';
   }
 
   @override
@@ -162,11 +186,12 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Note'))
-      ..add(DiagnosticsProperty('name', name))
+      ..add(DiagnosticsProperty('header', header))
       ..add(DiagnosticsProperty('text', text))
-      ..add(DiagnosticsProperty('tags', tags))
       ..add(DiagnosticsProperty('date', date))
-      ..add(DiagnosticsProperty('note_id', note_id));
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('duration', duration))
+      ..add(DiagnosticsProperty('audio_location', audio_location));
   }
 
   @override
@@ -174,15 +199,19 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$NoteImpl &&
-            (identical(other.name, name) || other.name == name) &&
+            (identical(other.header, header) || other.header == header) &&
             (identical(other.text, text) || other.text == text) &&
-            (identical(other.tags, tags) || other.tags == tags) &&
             (identical(other.date, date) || other.date == date) &&
-            (identical(other.note_id, note_id) || other.note_id == note_id));
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration) &&
+            (identical(other.audio_location, audio_location) ||
+                other.audio_location == audio_location));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, name, text, tags, date, note_id);
+  int get hashCode => Object.hash(
+      runtimeType, header, text, date, id, duration, audio_location);
 
   @JsonKey(ignore: true)
   @override
@@ -193,22 +222,25 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
 
 abstract class _Note implements Note {
   const factory _Note(
-      {required final String name,
+      {required final String header,
       required final String text,
-      final String? tags,
       required final DateTime date,
-      required final int note_id}) = _$NoteImpl;
+      required final int id,
+      required final int duration,
+      required final String audio_location}) = _$NoteImpl;
 
   @override
-  String get name;
+  String get header;
   @override
   String get text;
   @override
-  String? get tags;
-  @override
   DateTime get date;
   @override
-  int get note_id;
+  int get id;
+  @override
+  int get duration;
+  @override
+  String get audio_location;
   @override
   @JsonKey(ignore: true)
   _$$NoteImplCopyWith<_$NoteImpl> get copyWith =>

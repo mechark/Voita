@@ -1,48 +1,37 @@
 import 'dart:async';
-import 'dart:isolate';
-
-import 'package:flutter_sound/flutter_sound.dart';
+import 'package:flutter_voice_processor/flutter_voice_processor.dart';
 
 class RecorderService {
-  final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
+  final int frameLength;
+  final int sampleRate;
+  VoiceProcessor ?_voiceProcessor;
 
-  Future<void> recordToFile({required String toFile}) async {
-    await _recorder.openRecorder();
+  RecorderService({required this.frameLength, required this.sampleRate}) : 
+      _voiceProcessor = VoiceProcessor.instance;
 
-    return _recorder.startRecorder(
-          toFile: toFile,
-          codec: Codec.pcm16WAV,
-          sampleRate: 16000,
-      );
+  Future<void> startProcessing() async {
+    if (_voiceProcessor != null) {
+      return await _voiceProcessor!.start(frameLength, sampleRate);
+    }
+    throw Exception('Failed to start audio recording. Voice Processor has a null value');
   }
 
-  Future<void> _recordToStream(List<dynamic> args) async {
-      return await _recorder.startRecorder(
-          toStream: args[0],
-          codec: Codec.pcm16,
-          sampleRate: 16000,
-          bufferSize: 20480
-        );
+  void addListener(void Function(List<int>) listener) {
+    if (_voiceProcessor != null) {
+      _voiceProcessor!.addFrameListener(listener);
+    }
   }
 
-  Future<void> recordToStream({required StreamSink<Food> toStream}) async {
-    await _recorder.openRecorder();
-    
-    await _recorder.startRecorder(
-          toStream: toStream,
-          codec: Codec.pcm16,
-        );
+  Future<void> stop() async {
+    if (_voiceProcessor != null) {
+      await _voiceProcessor!.stop();
+    }
   }
 
-  Future<void> stopRecorder() async {
-    await _recorder.stopRecorder();
-  }
-
-  void dispose() {
-    _recorder.closeRecorder();
-  }
-
-  bool get isRecording {
-    return _recorder.isRecording;
+  Future<bool?> get isRecording async {
+    if (_voiceProcessor != null) {
+      return await _voiceProcessor!.isRecording();
+    }
+    return Future(() => false);
   }
 }
