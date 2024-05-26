@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voita_app/constants/app_colors.dart';
-import 'package:voita_app/features/recording/bloc/recording_bloc.dart';
-import 'package:voita_app/shared-widgets/record-icon/presentation/record-icon.dart';
 
 class Recording extends StatefulWidget {
   final FloatingActionButtonLocation buttonLocation;

@@ -10,7 +10,8 @@ import 'package:voita_app/shared-widgets/navbar/presentation/navbar.dart';
 import 'package:voita_app/shared-widgets/record-icon/presentation/record-icon.dart';
 
 class NotesScreen extends StatefulWidget {
-  const NotesScreen({Key? key}) : super(key: key);
+  final List<Note> notes;
+  const NotesScreen({Key? key, required this.notes}) : super(key: key);
 
   @override
   _NotesScreenState createState() => _NotesScreenState();
@@ -19,8 +20,21 @@ class NotesScreen extends StatefulWidget {
 class _NotesScreenState extends State<NotesScreen> {
   void _onPress() {}
 
-  Widget _noteCard(Note note, NotesBloc notesBloc) {
-    return NoteCard(note: note, notesBloc: notesBloc);
+  void _updateNote(Note updatedNote) {
+  setState(() {
+    int index = widget.notes.indexWhere((note) => note.id == updatedNote.id);
+    widget.notes[index] = updatedNote;
+    });
+  }
+
+  void _createNote(Note newNote) {
+    setState(() {
+      widget.notes.insert(0, newNote);
+    });
+  }
+
+  Widget _noteCard(Note note) {
+    return NoteCard(note: note, onNoteUpdated: _updateNote);
   }
 
   showAlertDialog(BuildContext context, Bloc bloc, int id) {
@@ -34,7 +48,10 @@ class _NotesScreenState extends State<NotesScreen> {
       child: const Text("Так"),
       onPressed:  () {
         bloc.add(DeleteNote(id: id));
-        setState(() {});
+        setState(() {
+          int index = widget.notes.indexWhere((note) => note.id == id);
+          widget.notes.removeAt(index);
+        });
         Navigator.of(context).pop();
       },
     );
@@ -79,7 +96,7 @@ class _NotesScreenState extends State<NotesScreen> {
               const SearchBarApp(),
               Expanded (
                 child: ListView.separated(
-                itemCount: state.notes.length,
+                itemCount: widget.notes.length,
                 separatorBuilder: (context, index) => const SizedBox(height: 5),
                 itemBuilder: (BuildContext context, int index) {
                   return Slidable(
@@ -106,9 +123,9 @@ class _NotesScreenState extends State<NotesScreen> {
                             backgroundColor: Colors.white,
                             borderRadius: const BorderRadius.all(Radius.circular(20)),
                             onPressed: (dialogContext) => showAlertDialog(context, 
-                            BlocProvider.of<NotesBloc>(context), state.notes[index].id),
+                            BlocProvider.of<NotesBloc>(context), widget.notes[index].id),
                           ),],),
-                    child: _noteCard(state.notes[index], BlocProvider.of<NotesBloc>(context))
+                    child: _noteCard(widget.notes[index])
                   );
                 },
               ),
@@ -125,7 +142,7 @@ class _NotesScreenState extends State<NotesScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
           if (state is NotesLoaded) {
-            return RecordIcon(color: AppColor.spaceGray, notesBloc: BlocProvider.of<NotesBloc>(context));
+            return RecordIcon(color: AppColor.spaceGray, onNoteCreated: _createNote);
           }
           else {return const SizedBox();}
         }

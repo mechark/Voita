@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:voita_app/constants/app_colors.dart';
 import 'package:voita_app/features/note-review/bloc/review_bloc.dart';
-import 'package:voita_app/features/notes-overview/bloc/notes_bloc.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/shared-widgets/navbar/presentation/navbar.dart';
 import 'package:voita_app/shared-widgets/note-appbar/note_appbar.dart';
@@ -13,8 +12,8 @@ import 'package:voita_app/utils/services/time_formatter.dart';
 
 class NoteScreen extends StatefulWidget {
   final Note note;
-  final NotesBloc notesBloc;
-  NoteScreen({ Key? key, required this.note, required this.notesBloc }) : super(key: key);
+  final Function(Note) onNoteUpdated;
+  NoteScreen({ Key? key, required this.note, required this.onNoteUpdated }) : super(key: key);
 
   @override
   _NoteScreenState createState() => _NoteScreenState(this.note);
@@ -23,8 +22,8 @@ class NoteScreen extends StatefulWidget {
 class _NoteScreenState extends State<NoteScreen> {
   final Note note;
   bool isEditable = false;
-  late String curr_header = note.header;
-  late String curr_text = note.text;
+  late String currHeader = note.header;
+  late String currText = note.text;
   late TextEditingController _headerController;
   late TextEditingController _textController;
   late ReviewBloc _bloc;
@@ -44,8 +43,11 @@ class _NoteScreenState extends State<NoteScreen> {
         header: _headerController.text,
         text: _textController.text,
       ));
+    
+    note.header = _headerController.text;
+    note.text = _textController.text;
+    widget.onNoteUpdated(note);
     }
-    widget.notesBloc.add(const LoadNotes());
     super.deactivate();
   }
 
@@ -75,7 +77,7 @@ class _NoteScreenState extends State<NoteScreen> {
               IgnorePointer(
                 ignoring: !isEditable,
                 child: TextField(
-                onChanged: (value) => {curr_header = _headerController.text},
+                onChanged: (value) => {currHeader = _headerController.text},
                 controller: _headerController,
                 style: const TextStyle(
                   fontFamily: "Open Sans",
@@ -98,7 +100,7 @@ class _NoteScreenState extends State<NoteScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                 Text(
-                  TimeFormatter.getDay(note.date),
+                  TimeFormatter.getDay(note.date) == TimeFormatter.getDay(DateTime.now()) ? "Сьогодні" : TimeFormatter.getDay(note.date),
                   style: const TextStyle(
                     fontFamily: "Open Sans",
                     fontWeight: FontWeight.w600,
@@ -106,7 +108,7 @@ class _NoteScreenState extends State<NoteScreen> {
                   )
                 ),
                 Text(
-                  TimeFormatter.getMinutes(note.date, note.duration),
+                  TimeFormatter.getTimeRange(note.date, note.duration),
                   style: const TextStyle(
                     fontFamily: "Open Sans",
                     fontWeight: FontWeight.w500,
@@ -133,7 +135,7 @@ class _NoteScreenState extends State<NoteScreen> {
             IgnorePointer(
               ignoring: !isEditable,
                 child: TextField(
-                  onChanged: (value) => {curr_text = _textController.text},
+                  onChanged: (value) => {currText = _textController.text},
                   controller: _textController,
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
@@ -160,7 +162,7 @@ class _NoteScreenState extends State<NoteScreen> {
       extendBody: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: const RecordIcon(color: AppColor.spaceGray),
-      bottomNavigationBar: Navbar(),
+      bottomNavigationBar: const Navbar(),
     );
   }
   ));

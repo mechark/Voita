@@ -10,12 +10,10 @@ sealed class NotesState extends Equatable {
 final class NotesInitial extends NotesState {}
 
 class NotesLoaded extends NotesState {
-  final List<Note> notes;
-
-  const NotesLoaded({this.notes = const <Note>[]});
+  const NotesLoaded();
 
   @override
-  List<Object> get props => [notes];
+  List<Object> get props => [];
 }
 
 class NotesFailedToLoad extends NotesState {

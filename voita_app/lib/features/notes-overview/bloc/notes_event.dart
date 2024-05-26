@@ -8,12 +8,10 @@ sealed class NotesEvent extends Equatable {
 }
 
 class LoadNotes extends NotesEvent {
-  final List<Note> notes;
-
-  const LoadNotes({this.notes = const <Note>[]});
+  const LoadNotes();
 
   @override
-  List<Object> get props => [notes];
+  List<Object> get props => [];
 }
 
 class FailedToLoad extends NotesEvent {
@@ -28,7 +26,7 @@ class FailedToLoad extends NotesEvent {
 class AddNote extends NotesEvent {
   final Note note;
 
-  AddNote({required this.note});
+  const AddNote({required this.note});
 
   @override
   List<Object> get props => [note];
@@ -37,7 +35,7 @@ class AddNote extends NotesEvent {
 class EditNote extends NotesEvent {
   final Note note;
 
-  EditNote({required this.note});
+  const EditNote({required this.note});
 
   @override
   List<Object> get props => [note];
@@ -46,7 +44,7 @@ class EditNote extends NotesEvent {
 class DeleteNote extends NotesEvent {
   final int id;
 
-  DeleteNote({required this.id});
+  const DeleteNote({required this.id});
 
   @override
   List<Object> get props => [id];

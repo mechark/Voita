@@ -1,27 +1,30 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
-
 part 'note_model.freezed.dart';
+part 'note_model.g.dart';
 
-@freezed
+@unfreezed
 class Note with _$Note {
-  const factory Note({
+  factory Note({
     required String header,
     required String text,
-    required DateTime date,
-    required int id,
-    required int duration,
-    required String audio_location
+    required final DateTime date,
+    required final int id,
+    required final int duration,
+    required final String audio_location
   }) = _Note;
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id'],
-      header: map['header'],
+      header: map['header'] ?? "Нотатка",
       text: map['text'],
-      date: map['date'],
+      date: DateTime.parse(map['date']),
       duration: map['duration'],
       audio_location: map['audio_location']
     );
   }
+
+  factory Note.fromJson(Map<String, Object?> json)
+      => _$NoteFromJson(json);
 }

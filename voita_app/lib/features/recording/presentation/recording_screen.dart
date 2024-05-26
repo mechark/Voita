@@ -3,15 +3,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:voita_app/constants/app_colors.dart';
-import 'package:voita_app/features/notes-overview/bloc/notes_bloc.dart';
+import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/recording/bloc/recording_bloc.dart';
 import 'package:voita_app/shared-widgets/navbar/presentation/navbar.dart';
 import 'package:voita_app/shared-widgets/note-appbar/note_appbar.dart';
-import 'package:voita_app/shared-widgets/record-icon/presentation/record-icon.dart';
 
 class RecordingScreen extends StatefulWidget {
-  NotesBloc ?notesBloc;
-  RecordingScreen({ Key? key, this.notesBloc }) : super(key: key);
+  final Function(Note)? onNoteCreated;
+  RecordingScreen({ Key? key, this.onNoteCreated }) : super(key: key);
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
@@ -30,8 +29,7 @@ class _NoteScreenState extends State<RecordingScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => RecordingBloc()..add(const OngoingRecording(text: "")),
-      child: BlocBuilder<RecordingBloc, RecordingState> (builder: (context, state) {
-      return Scaffold(
+      child: Scaffold(
           appBar: const NoteAppBar(),
           body: BlocBuilder<RecordingBloc, RecordingState> (builder: (context, state) {
             if (state is RecordingInProgress) {
@@ -54,7 +52,8 @@ class _NoteScreenState extends State<RecordingScreen> {
             } 
             else if (state is RecordingStopped) {
               SchedulerBinding.instance.addPostFrameCallback((_) {
-                widget.notesBloc?.add(AddNote(note: state.note));
+                widget.onNoteCreated!(state.note);
+                Navigator.pop(context);
               });
 
               return Container(
@@ -85,8 +84,7 @@ class _NoteScreenState extends State<RecordingScreen> {
             (builder: (context, state) { 
             if (state is RecordingInProgress) {
               return IconButton(
-              onPressed: () async {
-                setMicroDown();
+              onPressed: () {
                 BlocProvider.of<RecordingBloc>(context).add(const StopRecording());
               },
               icon: const ImageIcon(AssetImage("assets/stop-button.png")),
@@ -95,17 +93,17 @@ class _NoteScreenState extends State<RecordingScreen> {
           );
           }
           else if (state is RecordingStopped) {
-              return const RecordIcon(color: AppColor.spaceGray);
-            }
+            return const SizedBox();
+          }
           else {
-            print("Something went wrong");
-            print("State ${state.toString()}");
-            return const RecordIcon(color: AppColor.spaceGray);
+            return const Text(
+              "Init status"
+            );
           }
       },
       ),
         bottomNavigationBar: const Navbar(),
-    );},
-    ));
+    ),
+    );
   }
 }

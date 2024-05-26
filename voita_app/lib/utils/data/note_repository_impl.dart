@@ -1,69 +1,49 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:voita_app/utils/data/note_repository.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
-import 'package:voita_app/utils/data/db_provider.dart';
 
 class NoteRepositoryImpl implements NoteRepository {
   NoteRepositoryImpl();
 
+  final supabase = Supabase.instance.client;
+
   @override
   Future<List<Note>> getAllNotes() async {
-    final conn = await DBProvider.getConnection();
-
-    if (conn.isOpen) {
-      final notes = await conn.execute("SELECT * FROM notes ORDER BY date DESC");
-      conn.close();
-      return notes.map((row) => Note.fromMap(row.toColumnMap())).toList();
-    } else {throw Exception("Can't get all notes. Connection didn't open successfully");}
+    final notes = await supabase.from('notes').select();
+    return notes.map((note) => Note.fromMap(note)).toList();
   }
 
   @override
   Future<Note> getNote(int id) async {
-    final conn = await DBProvider.getConnection();
-    final note = await conn.execute("SELECT * FROM notes WHERE id=$id");
-
-    conn.close();
-    return note.map((row) => Note.fromMap(row.toColumnMap())).first;
+    final note = await supabase.from('notes').select().eq('id', id);
+    return note.map((note) => Note.fromMap(note)).first;
   }
 
   @override
   Future<void> addNote(Note note) async {
-    final conn = await DBProvider.getConnection();
+    final status = await supabase.from('notes').insert({'id' : note.id, 'header' : note.header, 'text' : note.text, 'date' : note.date.toString(),
+        'duration' : note.duration, 'audio_location' : note.audio_location
+    });
 
-    if (conn.isOpen) {
-      final success = await conn.execute(''' INSERT INTO notes(id, header, text, date, duration, audio_location) VALUES  
-        ('${note.id}', '${note.header}', '${note.text}', 
-        '${note.date}', '${note.duration}', '${note.audio_location}')''');
-    }
-    else{
-      throw Exception("Can't add the note, connection is not open");
-    }
+    // if (status.error != null) {
+    //   throw Exception('Failed to insert note into Notes table');
+    // }
 
-    conn.close();
   }
 
   @override
   Future<void> removeNote(int id) async {
-    final conn = await DBProvider.getConnection();
-
-    if (conn.isOpen) {
-      final success = await conn.execute(''' DELETE FROM notes WHERE id='$id' ''');
-    } 
-    else {
-      throw Exception("Can't remove the note, connection is not open");
-    }
-
-    conn.close();
+    final status = await supabase.from('notes').delete().match({'id' : id});
+    // if (status.error != null) {
+    //   throw Exception('Failed to insert note into Notes table');
+    // }
   }
 
   @override
   Future<void> updateNote(int id, String header, String text) async {
-    final conn = await DBProvider.getConnection();
-
-    if (conn.isOpen) {
-      final success = await conn.execute(''' UPDATE notes SET header='$header', text='$text' WHERE id='$id'; ''');
-    }
-    else {
-      throw Exception("Can't update the note, connection is not open");
-    }
+    final status = await supabase.from('notes').update({'header' : header, 'text' : text}).match({'id' : id});
+    // if (status.error != null) {
+    //   throw Exception('Failed to insert note into Notes table');
+    // }
   }
 }
