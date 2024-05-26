@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:voita_app/utils/services/string_extension.dart';
 
 class TimeFormatter {
-  static String getMinutes(DateTime dateTime, int duration) {
-    return DateFormat.jm('uk').format(dateTime);
+  static String getTimeRange(DateTime startTime, int duration) {
+
+    DateTime endTime = startTime.add(Duration(minutes: (duration / 60000).ceil()));
+    return DateFormat.jm('uk').format(startTime) + " - " + DateFormat.jm('uk').format(endTime);
   }
 
   static String getDay(DateTime dateTime) {

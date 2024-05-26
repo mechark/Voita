@@ -14,15 +14,22 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+Note _$NoteFromJson(Map<String, dynamic> json) {
+  return _Note.fromJson(json);
+}
+
 /// @nodoc
 mixin _$Note {
   String get header => throw _privateConstructorUsedError;
+  set header(String value) => throw _privateConstructorUsedError;
   String get text => throw _privateConstructorUsedError;
+  set text(String value) => throw _privateConstructorUsedError;
   DateTime get date => throw _privateConstructorUsedError;
   int get id => throw _privateConstructorUsedError;
   int get duration => throw _privateConstructorUsedError;
   String get audio_location => throw _privateConstructorUsedError;
 
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $NoteCopyWith<Note> get copyWith => throw _privateConstructorUsedError;
 }
@@ -153,9 +160,9 @@ class __$$NoteImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
-  const _$NoteImpl(
+  _$NoteImpl(
       {required this.header,
       required this.text,
       required this.date,
@@ -163,10 +170,13 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
       required this.duration,
       required this.audio_location});
 
+  factory _$NoteImpl.fromJson(Map<String, dynamic> json) =>
+      _$$NoteImplFromJson(json);
+
   @override
-  final String header;
+  String header;
   @override
-  final String text;
+  String text;
   @override
   final DateTime date;
   @override
@@ -194,45 +204,37 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
       ..add(DiagnosticsProperty('audio_location', audio_location));
   }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$NoteImpl &&
-            (identical(other.header, header) || other.header == header) &&
-            (identical(other.text, text) || other.text == text) &&
-            (identical(other.date, date) || other.date == date) &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.duration, duration) ||
-                other.duration == duration) &&
-            (identical(other.audio_location, audio_location) ||
-                other.audio_location == audio_location));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, header, text, date, id, duration, audio_location);
-
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$NoteImplCopyWith<_$NoteImpl> get copyWith =>
       __$$NoteImplCopyWithImpl<_$NoteImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$NoteImplToJson(
+      this,
+    );
+  }
 }
 
 abstract class _Note implements Note {
-  const factory _Note(
-      {required final String header,
-      required final String text,
+  factory _Note(
+      {required String header,
+      required String text,
       required final DateTime date,
       required final int id,
       required final int duration,
       required final String audio_location}) = _$NoteImpl;
 
+  factory _Note.fromJson(Map<String, dynamic> json) = _$NoteImpl.fromJson;
+
   @override
   String get header;
+  set header(String value);
   @override
   String get text;
+  set text(String value);
   @override
   DateTime get date;
   @override

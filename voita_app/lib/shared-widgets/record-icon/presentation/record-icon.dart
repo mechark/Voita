@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:voita_app/features/notes-overview/bloc/notes_bloc.dart';
+import 'package:voita_app/features/notes-overview/models/note_model.dart';
 
 class RecordIcon extends StatelessWidget {
 final Color color;
-final NotesBloc? notesBloc;
-const RecordIcon({ Key? key, required this.color, this.notesBloc }) : super(key: key);
+final Function(Note)? onNoteCreated;
+const RecordIcon({ Key? key, required this.color, this.onNoteCreated }) : super(key: key);
 
 
   @override
@@ -14,7 +14,7 @@ const RecordIcon({ Key? key, required this.color, this.notesBloc }) : super(key:
             onPressed: () async {
               final status = await Permission.microphone.request();
               if (status.isGranted) {
-                Navigator.pushNamed(context, "/recording", arguments: notesBloc);
+                Navigator.pushNamed(context, "/recording", arguments: onNoteCreated);
               }
               else {throw Exception("status.isDenied ${status.isDenied}");}
             },
