@@ -1,9 +1,7 @@
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:http/http.dart';
 
-class ModelService {
+class RecordingRepositoryImpl {
 
   Future<String> sendToPipeline(List<int> frame) async {
     Map<String, String> body = {
