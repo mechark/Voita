@@ -93,7 +93,7 @@ class _NotesScreenState extends State<NotesScreen> {
           BlocProvider.of<NotesBloc>(context).add(const LoadNotes());
           if (state is NotesLoaded) {
             return Column(children: [
-              const SearchBarApp(),
+              SearchBarApp(notes: widget.notes),
               Expanded (
                 child: ListView.separated(
                 itemCount: widget.notes.length,
