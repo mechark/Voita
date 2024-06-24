@@ -12,7 +12,7 @@ _$NoteImpl _$$NoteImplFromJson(Map<String, dynamic> json) => _$NoteImpl(
       date: DateTime.parse(json['date'] as String),
       id: (json['id'] as num).toInt(),
       duration: (json['duration'] as num).toInt(),
-      audio_location: json['audio_location'] as String,
+      audioLocation: json['audioLocation'] as String,
     );
 
 Map<String, dynamic> _$$NoteImplToJson(_$NoteImpl instance) =>
@@ -22,5 +22,5 @@ Map<String, dynamic> _$$NoteImplToJson(_$NoteImpl instance) =>
       'date': instance.date.toIso8601String(),
       'id': instance.id,
       'duration': instance.duration,
-      'audio_location': instance.audio_location,
+      'audioLocation': instance.audioLocation,
     };

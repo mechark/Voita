@@ -1,5 +1,5 @@
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:voita_app/utils/data/note_repository_impl.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 
@@ -28,12 +28,10 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   }
 
   void _onAddNote(AddNote event, Emitter<NotesState> emit) async {
-    final notes = await _noteRepository.getAllNotes();
     emit(const NotesLoaded());
   }
 
-  void _editNote(EditNote event, Emitter<NotesState> emit) async {
-  }
+  void _editNote(EditNote event, Emitter<NotesState> emit) async {}
 
   void _deleteNote(DeleteNote event, Emitter<NotesState> emit) async {
     await _noteRepository.removeNote(event.id);

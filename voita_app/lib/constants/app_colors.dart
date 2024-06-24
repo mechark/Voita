@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';class AppColor {
+import 'package:flutter/widgets.dart';
+
+class AppColor {
   AppColor._();
   static const Color spaceGray = Color(0xff151515);
   static const Color purplishBlue = Color(0xffb7c4ff);

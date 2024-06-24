@@ -11,10 +11,12 @@ void main() {
 }
 
 class VoitaApp extends StatefulWidget {
-  const VoitaApp({ Key? key }) : super(key: key);
+  const VoitaApp({super.key});
 
   @override
-  _VoitaApp createState() => _VoitaApp();
+  State<VoitaApp> createState() {
+    return _VoitaApp();
+  }
 }
 
 class _VoitaApp extends State<VoitaApp> {

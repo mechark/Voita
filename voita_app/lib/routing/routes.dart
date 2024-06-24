@@ -7,9 +7,9 @@ import 'package:voita_app/features/notes-overview/presentation/notes_overview_sc
 Map<String, WidgetBuilder> routes = {
   '/': (context) => const SplashScreen(),
   '/voita_home': (context) => NotesScreen(
-    notes: ModalRoute.of(context)?.settings.arguments as List<Note>,
-  ),
+        notes: ModalRoute.of(context)?.settings.arguments as List<Note>,
+      ),
   '/recording': (context) => RecordingScreen(
-    onNoteCreated: ModalRoute.of(context)?.settings.arguments as Function(Note)?
-  ),
+      onNoteCreated:
+          ModalRoute.of(context)?.settings.arguments as Function(Note)?),
 };

@@ -12,7 +12,8 @@ class ReviewTerminate extends ReviewEvent {
   final String header;
   final String text;
 
-  const ReviewTerminate({required this.id, required this.header, required this.text});
+  const ReviewTerminate(
+      {required this.id, required this.header, required this.text});
 
   @override
   List<Object> get props => [id, header, text];

@@ -27,7 +27,7 @@ mixin _$Note {
   DateTime get date => throw _privateConstructorUsedError;
   int get id => throw _privateConstructorUsedError;
   int get duration => throw _privateConstructorUsedError;
-  String get audio_location => throw _privateConstructorUsedError;
+  String get audioLocation => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -45,7 +45,7 @@ abstract class $NoteCopyWith<$Res> {
       DateTime date,
       int id,
       int duration,
-      String audio_location});
+      String audioLocation});
 }
 
 /// @nodoc
@@ -66,7 +66,7 @@ class _$NoteCopyWithImpl<$Res, $Val extends Note>
     Object? date = null,
     Object? id = null,
     Object? duration = null,
-    Object? audio_location = null,
+    Object? audioLocation = null,
   }) {
     return _then(_value.copyWith(
       header: null == header
@@ -89,9 +89,9 @@ class _$NoteCopyWithImpl<$Res, $Val extends Note>
           ? _value.duration
           : duration // ignore: cast_nullable_to_non_nullable
               as int,
-      audio_location: null == audio_location
-          ? _value.audio_location
-          : audio_location // ignore: cast_nullable_to_non_nullable
+      audioLocation: null == audioLocation
+          ? _value.audioLocation
+          : audioLocation // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -110,7 +110,7 @@ abstract class _$$NoteImplCopyWith<$Res> implements $NoteCopyWith<$Res> {
       DateTime date,
       int id,
       int duration,
-      String audio_location});
+      String audioLocation});
 }
 
 /// @nodoc
@@ -128,7 +128,7 @@ class __$$NoteImplCopyWithImpl<$Res>
     Object? date = null,
     Object? id = null,
     Object? duration = null,
-    Object? audio_location = null,
+    Object? audioLocation = null,
   }) {
     return _then(_$NoteImpl(
       header: null == header
@@ -151,9 +151,9 @@ class __$$NoteImplCopyWithImpl<$Res>
           ? _value.duration
           : duration // ignore: cast_nullable_to_non_nullable
               as int,
-      audio_location: null == audio_location
-          ? _value.audio_location
-          : audio_location // ignore: cast_nullable_to_non_nullable
+      audioLocation: null == audioLocation
+          ? _value.audioLocation
+          : audioLocation // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -168,7 +168,7 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
       required this.date,
       required this.id,
       required this.duration,
-      required this.audio_location});
+      required this.audioLocation});
 
   factory _$NoteImpl.fromJson(Map<String, dynamic> json) =>
       _$$NoteImplFromJson(json);
@@ -184,11 +184,11 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
   @override
   final int duration;
   @override
-  final String audio_location;
+  final String audioLocation;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Note(header: $header, text: $text, date: $date, id: $id, duration: $duration, audio_location: $audio_location)';
+    return 'Note(header: $header, text: $text, date: $date, id: $id, duration: $duration, audioLocation: $audioLocation)';
   }
 
   @override
@@ -201,7 +201,7 @@ class _$NoteImpl with DiagnosticableTreeMixin implements _Note {
       ..add(DiagnosticsProperty('date', date))
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('duration', duration))
-      ..add(DiagnosticsProperty('audio_location', audio_location));
+      ..add(DiagnosticsProperty('audioLocation', audioLocation));
   }
 
   @JsonKey(ignore: true)
@@ -225,7 +225,7 @@ abstract class _Note implements Note {
       required final DateTime date,
       required final int id,
       required final int duration,
-      required final String audio_location}) = _$NoteImpl;
+      required final String audioLocation}) = _$NoteImpl;
 
   factory _Note.fromJson(Map<String, dynamic> json) = _$NoteImpl.fromJson;
 
@@ -242,7 +242,7 @@ abstract class _Note implements Note {
   @override
   int get duration;
   @override
-  String get audio_location;
+  String get audioLocation;
   @override
   @JsonKey(ignore: true)
   _$$NoteImplCopyWith<_$NoteImpl> get copyWith =>

@@ -21,19 +21,23 @@ class NoteRepositoryImpl implements NoteRepository {
 
   @override
   Future<void> addNote(Note note) async {
-    final status = await supabase.from('notes').insert({'id' : note.id, 'header' : note.header, 'text' : note.text, 'date' : note.date.toString(),
-        'duration' : note.duration, 'audio_location' : note.audio_location
+    await supabase.from('notes').insert({
+      'id': note.id,
+      'header': note.header,
+      'text': note.text,
+      'date': note.date.toString(),
+      'duration': note.duration,
+      'audio_location': note.audioLocation
     });
 
     // if (status.error != null) {
     //   throw Exception('Failed to insert note into Notes table');
     // }
-
   }
 
   @override
   Future<void> removeNote(int id) async {
-    final status = await supabase.from('notes').delete().match({'id' : id});
+    await supabase.from('notes').delete().match({'id': id});
     // if (status.error != null) {
     //   throw Exception('Failed to insert note into Notes table');
     // }
@@ -41,7 +45,9 @@ class NoteRepositoryImpl implements NoteRepository {
 
   @override
   Future<void> updateNote(int id, String header, String text) async {
-    final status = await supabase.from('notes').update({'header' : header, 'text' : text}).match({'id' : id});
+    await supabase
+        .from('notes')
+        .update({'header': header, 'text': text}).match({'id': id});
     // if (status.error != null) {
     //   throw Exception('Failed to insert note into Notes table');
     // }

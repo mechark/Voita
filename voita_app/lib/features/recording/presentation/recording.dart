@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Recording extends StatefulWidget {
-  final FloatingActionButtonLocation buttonLocation;
-  const Recording({ Key? key, required this.buttonLocation}) : super(key: key);
+  const Recording({super.key});
 
   @override
-  _RecordingState createState() => _RecordingState(this.buttonLocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _RecordingState extends State<Recording> {
-
-  FloatingActionButtonLocation _buttonLocation;
-
-  _RecordingState(this._buttonLocation);
-  
-  void setMicroDown() {
-    setState(() {
-      _buttonLocation = FloatingActionButtonLocation.centerDocked;
-    });
-  }
+  _RecordingState();
 
   @override
   Widget build(BuildContext context) {
