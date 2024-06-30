@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:voita_app/utils/data/note_repository_impl.dart';
+import 'package:voita_app/utils/services/notes_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,13 +13,18 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final NoteRepositoryImpl _noteRepo = NoteRepositoryImpl();
+  final NotesProvider notesProvider = NotesProvider();
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
 
-    _noteRepo.getAllNotes().then((notes) => Navigator.of(context)
-        .pushReplacementNamed('/voita_home', arguments: notes));
+    _noteRepo.getAllNotes().then((notes) { 
+      notesProvider.notes = notes;
+      
+      Navigator.of(context)
+        .pushReplacementNamed('/voita_home', arguments: notes);
+    });
   }
 
   @override

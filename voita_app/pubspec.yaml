@@ -51,6 +51,8 @@ dependencies:
   flutter_silero_vad:
     git:
       url: https://github.com/char5742/flutter_silero_vad.git
+  go_router: ^14.2.0
+  get_it: ^7.7.0
 
 dev_dependencies:
   flutter_test:

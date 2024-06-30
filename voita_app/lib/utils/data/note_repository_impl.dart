@@ -3,8 +3,6 @@ import 'package:voita_app/utils/data/note_repository.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 
 class NoteRepositoryImpl implements NoteRepository {
-  NoteRepositoryImpl();
-
   final supabase = Supabase.instance.client;
 
   @override
