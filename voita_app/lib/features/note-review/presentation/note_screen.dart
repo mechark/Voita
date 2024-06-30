@@ -31,6 +31,8 @@ class _NoteScreenState extends State<NoteScreen> {
 
   @override
   void initState() {
+    note = widget.note;
+
     super.initState();
     _headerController = TextEditingController(text: note.header);
     _textController = TextEditingController(text: note.text);
@@ -58,10 +60,6 @@ class _NoteScreenState extends State<NoteScreen> {
     _headerController.dispose();
     _textController.dispose();
     super.dispose();
-  }
-
-  _NoteScreenState() {
-    note = widget.note;
   }
 
   @override
@@ -130,12 +128,12 @@ class _NoteScreenState extends State<NoteScreen> {
                         value: isEditable,
                         inactiveThumbColor: AppColor.darkPurple,
                         thumbColor:
-                            WidgetStateProperty .all(AppColor.darkPurple),
+                            MaterialStateProperty.all(AppColor.darkPurple),
                         activeColor: AppColor.darkPurple,
                         trackOutlineColor:
-                            WidgetStateProperty.all(Colors.white),
+                            MaterialStateProperty.all(Colors.white),
                         thumbIcon:
-                            WidgetStateProperty.all(const Icon(Icons.edit)),
+                            MaterialStateProperty.all(const Icon(Icons.edit)),
                         onChanged: (value) => {
                               setState(() {
                                 isEditable = !isEditable;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:voita_app/constants/app_colors.dart';
 import 'package:voita_app/features/note-review/presentation/note_screen.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
+import 'package:voita_app/utils/services/context_extension.dart';
 import 'package:voita_app/utils/services/time_formatter.dart';
 
 class SearchBarApp extends StatefulWidget {
@@ -24,19 +25,23 @@ class _SearchBarAppState extends State<SearchBarApp> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
+        // constraints: context.responsive(const BoxConstraints(minWidth: 400, maxWidth: 1000), 
+        //             xl: const BoxConstraints(minWidth: 150, maxWidth: 250, maxHeight: 60)),
         padding: const EdgeInsets.all(15),
         child: SearchAnchor(
+          viewShape: const RoundedRectangleBorder(),
           viewBackgroundColor: Colors.white,
           viewSurfaceTintColor: Colors.white,
           dividerColor: AppColor.spaceGray,
           builder: (BuildContext context, SearchController controller) {
             return SearchBar(
               backgroundColor:
-                  WidgetStateProperty .all(AppColor.purplishBlueLight),
-              overlayColor: WidgetStateProperty .all(Colors.white),
-              shadowColor: WidgetStateProperty .all(Colors.white),
-              surfaceTintColor: WidgetStateProperty .all(Colors.white),
+                  context.responsive(MaterialStateProperty.all(AppColor.purplishBlueLight),
+                  xl: MaterialStateProperty.all(Colors.white)),
+              overlayColor: MaterialStateProperty .all(Colors.white),
+              shadowColor: MaterialStateProperty .all(Colors.white),
+              surfaceTintColor: MaterialStateProperty .all(Colors.white),
               controller: controller,
               onChanged: (_) {
                 controller.openView();
@@ -45,7 +50,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
               leading: const Icon(
                 Icons.search_outlined,
                 weight: 800,
-                size: 40,
+                size: 20,
               ),
             );
           },
@@ -69,15 +74,17 @@ class _SearchBarAppState extends State<SearchBarApp> {
                 );
               });
             } else {
-              return List<Container>.generate(filteredNotes.length, (index) {
+              return List<Expanded>.generate(filteredNotes.length, (index) {
                 Note note = filteredNotes[index];
-                return Container(
+                return Expanded(
+                  child: 
+                  Container(
                     alignment: Alignment.centerLeft,
-                    constraints:
-                        const BoxConstraints(minWidth: 400, maxWidth: 1000),
+                    constraints: context.responsive(const BoxConstraints(minWidth: 250, maxWidth: 250),
+                    xl: const BoxConstraints(minWidth: 20, maxWidth: 30)),
                     margin: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                       color: AppColor.purplishBlue,
                     ),
                     child: ListTile(
@@ -98,7 +105,8 @@ class _SearchBarAppState extends State<SearchBarApp> {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => NoteScreen(
                                   note: note, onNoteUpdated: _updateNote)));
-                        }));
+                        })
+                  ));
               });
             }
           },

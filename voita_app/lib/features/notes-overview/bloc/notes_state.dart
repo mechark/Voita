@@ -42,3 +42,24 @@ class NoteRemoved extends NotesState {
   @override
   List<Object> get props => [id];
 }
+
+class NoteGroupsLoaded extends NotesState {
+  const NoteGroupsLoaded();
+
+  @override
+  List<Object> get props => [];
+}
+
+class AllNotesLoaded extends NotesState {
+  const AllNotesLoaded();
+
+  @override
+  List<Object> get props => [];
+}
+
+class SearchBarOpened extends NotesState {
+  const SearchBarOpened();
+
+  @override
+  List<Object> get props => [];
+}

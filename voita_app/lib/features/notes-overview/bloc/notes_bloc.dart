@@ -11,10 +11,13 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
 
   NotesBloc() : super(const NotesLoaded()) {
     on<LoadNotes>(_onLoadNotes);
-    on<AddNote>(_onAddNote);
-    on<EditNote>(_editNote);
-    on<DeleteNote>(_deleteNote);
-    on<FailedToLoad>(_failedToLoad);
+    // on<AddNote>(_onAddNote);
+    // on<EditNote>(_editNote);
+    on<DeleteNote>(_onDeleteNote);
+    on<LoadNoteGroups>(_onLoadNoteGroups);
+    on<LoadAllNotes> (_onLoadAllNotes);
+    on<OpenSearchBar> (_onOpenSearchBar);
+    // on<FailedToLoad>(_failedToLoad);
 
     _noteRepository = NoteRepositoryImpl();
   }
@@ -23,17 +26,27 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     emit(const NotesLoaded());
   }
 
-  void _failedToLoad(FailedToLoad event, Emitter<NotesState> emit) async {
-    emit(NotesFailedToLoad(notes: event.notes));
+  void _onLoadNoteGroups (LoadNoteGroups event, Emitter<NotesState> emit) {
+    emit(const NoteGroupsLoaded());
   }
 
-  void _onAddNote(AddNote event, Emitter<NotesState> emit) async {
-    emit(const NotesLoaded());
+  void _onLoadAllNotes (LoadAllNotes event, Emitter<NotesState> emit) {
+    emit(const AllNotesLoaded());
   }
 
-  void _editNote(EditNote event, Emitter<NotesState> emit) async {}
+  void _onOpenSearchBar (OpenSearchBar event, Emitter<NotesState> emit) {
+    emit(const SearchBarOpened());
+  }
 
-  void _deleteNote(DeleteNote event, Emitter<NotesState> emit) async {
+  // void _failedToLoad(FailedToLoad event, Emitter<NotesState> emit) async {
+  //   emit(NotesFailedToLoad(notes: event.notes));
+  // }
+
+  // void _onAddNote(AddNote event, Emitter<NotesState> emit) async {
+  //   emit(const NotesLoaded());
+  // }
+
+  void _onDeleteNote(DeleteNote event, Emitter<NotesState> emit) async {
     await _noteRepository.removeNote(event.id);
     emit(const NotesLoaded());
   }

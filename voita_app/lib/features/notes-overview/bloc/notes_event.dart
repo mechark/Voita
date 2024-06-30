@@ -49,3 +49,24 @@ class DeleteNote extends NotesEvent {
   @override
   List<Object> get props => [id];
 }
+
+class LoadNoteGroups extends NotesEvent {
+  const LoadNoteGroups();
+
+  @override
+  List<Object> get props => [];
+}
+
+class LoadAllNotes extends NotesEvent {
+  const LoadAllNotes();
+
+  @override
+  List<Object> get props => [];
+}
+
+class OpenSearchBar extends NotesEvent {
+  const OpenSearchBar();
+
+  @override
+  List<Object> get props => [];
+}
