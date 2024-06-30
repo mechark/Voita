@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:voita_app/routing/router.dart';
-import 'package:provider/provider.dart';
+import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 import 'package:voita_app/utils/services/data/supabase_client.dart';
-import 'package:voita_app/utils/services/notes_provider.dart';
 
 void main() {
   initializeDateFormatting('uk_EU', null).then((_) async {
@@ -24,9 +24,11 @@ class VoitaApp extends StatefulWidget {
 class _VoitaApp extends State<VoitaApp> {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MultiBlocProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => NotesProvider())
+        BlocProvider<NotesBloc>(
+          create: (context) => NotesBloc()..add(const LoadNotes())
+        ),
       ],
       child: MaterialApp.router(
       routerConfig: VoitaRouter.router,

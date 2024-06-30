@@ -8,6 +8,7 @@ import 'package:voita_app/features/notes-overview/presentation/note_card.dart';
 import 'package:voita_app/features/search/presentation/search_bar.dart';
 import 'package:voita_app/shared-widgets/navbar/presentation/navbar.dart';
 import 'package:voita_app/shared-widgets/record-icon/presentation/record-icon.dart';
+import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 
 class NotesOverviewMob extends StatefulWidget {
   final List<Note> notes;
@@ -81,7 +82,7 @@ class _NotesOverviewMobState extends State<NotesOverviewMob> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (context) => NotesBloc()..add(const LoadNotes()),
+        create: (context) => NotesOverviewBloc(),
         child: Scaffold(
           appBar: AppBar(
             actions: [
@@ -93,11 +94,11 @@ class _NotesOverviewMobState extends State<NotesOverviewMob> {
               ),
             ],
           ),
-          body: BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
-            BlocProvider.of<NotesBloc>(context).add(const LoadNotes());
+          body: BlocBuilder<NotesOverviewBloc, OverviewNotesState>(builder: (context, state) {
+            // BlocProvider.of<NotesOverviewBloc>(context).add(const LoadNotes());
             if (state is NotesLoaded) {
               return Column(children: [
-                SearchBarApp(notes: widget.notes),
+                const SearchBarApp(),
                 Expanded(
                   child: ListView.separated(
                     itemCount: widget.notes.length,

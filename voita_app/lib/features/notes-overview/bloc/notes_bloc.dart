@@ -6,14 +6,12 @@ import 'package:voita_app/features/notes-overview/models/note_model.dart';
 part 'notes_event.dart';
 part 'notes_state.dart';
 
-class NotesBloc extends Bloc<NotesEvent, NotesState> {
+class NotesOverviewBloc extends Bloc<OverviewNotesEvent, OverviewNotesState> {
   late NoteRepositoryImpl _noteRepository;
 
-  NotesBloc() : super(const NotesLoaded()) {
-    on<LoadNotes>(_onLoadNotes);
+  NotesOverviewBloc() : super(NotesInitial()) {
     // on<AddNote>(_onAddNote);
     // on<EditNote>(_editNote);
-    on<DeleteNote>(_onDeleteNote);
     on<LoadNoteGroups>(_onLoadNoteGroups);
     on<LoadAllNotes> (_onLoadAllNotes);
     on<OpenSearchBar> (_onOpenSearchBar);
@@ -22,32 +20,15 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     _noteRepository = NoteRepositoryImpl();
   }
 
-  void _onLoadNotes(LoadNotes event, Emitter<NotesState> emit) {
-    emit(const NotesLoaded());
-  }
-
-  void _onLoadNoteGroups (LoadNoteGroups event, Emitter<NotesState> emit) {
+  void _onLoadNoteGroups (LoadNoteGroups event, Emitter<OverviewNotesState> emit) {
     emit(const NoteGroupsLoaded());
   }
 
-  void _onLoadAllNotes (LoadAllNotes event, Emitter<NotesState> emit) {
+  void _onLoadAllNotes (LoadAllNotes event, Emitter<OverviewNotesState> emit) {
     emit(const AllNotesLoaded());
   }
 
-  void _onOpenSearchBar (OpenSearchBar event, Emitter<NotesState> emit) {
+  void _onOpenSearchBar (OpenSearchBar event, Emitter<OverviewNotesState> emit) {
     emit(const SearchBarOpened());
-  }
-
-  // void _failedToLoad(FailedToLoad event, Emitter<NotesState> emit) async {
-  //   emit(NotesFailedToLoad(notes: event.notes));
-  // }
-
-  // void _onAddNote(AddNote event, Emitter<NotesState> emit) async {
-  //   emit(const NotesLoaded());
-  // }
-
-  void _onDeleteNote(DeleteNote event, Emitter<NotesState> emit) async {
-    await _noteRepository.removeNote(event.id);
-    emit(const NotesLoaded());
   }
 }

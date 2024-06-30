@@ -1,63 +1,29 @@
 part of 'notes_bloc.dart';
 
-sealed class NotesState extends Equatable {
-  const NotesState();
+sealed class OverviewNotesState extends Equatable {
+  const OverviewNotesState();
 
   @override
   List<Object> get props => [];
 }
 
-final class NotesInitial extends NotesState {}
+final class NotesInitial extends OverviewNotesState {}
 
-class NotesLoaded extends NotesState {
-  const NotesLoaded();
-
-  @override
-  List<Object> get props => [];
-}
-
-class NotesFailedToLoad extends NotesState {
-  final List<Note> notes;
-
-  const NotesFailedToLoad({this.notes = const <Note>[]});
-
-  @override
-  List<Object> get props => [notes];
-}
-
-class NoteAdded extends NotesState {
-  final Note note;
-
-  const NoteAdded({required this.note});
-
-  @override
-  List<Object> get props => [note];
-}
-
-class NoteRemoved extends NotesState {
-  final int id;
-
-  const NoteRemoved({required this.id});
-
-  @override
-  List<Object> get props => [id];
-}
-
-class NoteGroupsLoaded extends NotesState {
+class NoteGroupsLoaded extends OverviewNotesState {
   const NoteGroupsLoaded();
 
   @override
   List<Object> get props => [];
 }
 
-class AllNotesLoaded extends NotesState {
+class AllNotesLoaded extends OverviewNotesState {
   const AllNotesLoaded();
 
   @override
   List<Object> get props => [];
 }
 
-class SearchBarOpened extends NotesState {
+class SearchBarOpened extends OverviewNotesState {
   const SearchBarOpened();
 
   @override

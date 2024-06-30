@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:voita_app/constants/app_colors.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/search/presentation/search_bar.dart';
 
 class Sidebar extends StatefulWidget {
-  final List<Note> notes;
-  const Sidebar({ super.key, required this.notes });
+  final StatefulNavigationShell navigationShell; 
+  const Sidebar({ super.key, required this.navigationShell});
 
   @override
   State<Sidebar> createState() {
@@ -24,21 +25,25 @@ class _SidebarState extends State<Sidebar> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: widget.navigationShell
+    );
     return NavigationRail(
-                selectedIndex: selectedIndex,
+                selectedIndex: widget.navigationShell.currentIndex,
                 elevation: 3,
                 groupAlignment: groupAlignment,
                 extended: true,
                 onDestinationSelected: (int index) {
-                  setState(() {
-                    selectedIndex = index;
-                  });
+                  // setState(() {
+                  //   selectedIndex = index;
+                  //   BlocProvider.of<NotesOverviewBloc>(context).add(events[selectedIndex] as OverviewNotesEvent);
+                  // });
                 },
                 labelType: labelType,
                 indicatorColor: AppColor.purplishBlueLight,
                 leading: Column(
                   children: [
-                    Container(
+                    SizedBox(
                       width: 250,
                       child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -46,7 +51,11 @@ class _SidebarState extends State<Sidebar> {
                       Row(children: [
                         IconButton(
                           onPressed: () => {}, 
-                          icon: const ImageIcon(AssetImage("assets/base.png"))
+                          icon: const CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColor.spaceGray,
+                            backgroundImage: AssetImage("assets/base.png"),
+                          )
                         ),
                         const Text("Павло",
                         style: TextStyle(
@@ -57,18 +66,20 @@ class _SidebarState extends State<Sidebar> {
                       ],),
                       IconButton(
                         icon: const Icon(Icons.dark_mode),
-                        onPressed: () => {}
+                        onPressed: () => setState(() {
+                            // theme = theme == ThemeData.dark() ? ThemeData.light() : ThemeData.dark();
+                        })
                       )
                     ],),
                     ),
                     const Divider(height: 20, thickness: 20,color: Colors.black,),
-                    SearchBarApp(notes: widget.notes),
                   ],
                 ),
-                trailing: Row(
+                trailing: 
+                Row(
                   children: [
                     const SizedBox(height: 150),
-                    Container(
+                    SizedBox(
                     width: 110,
                     height: 40,
                     child: FloatingActionButton(
@@ -90,6 +101,15 @@ class _SidebarState extends State<Sidebar> {
                   ],
                 ),
                 destinations: const <NavigationRailDestination>[
+                  NavigationRailDestination(
+                    icon: Icon(Icons.search),
+                    label: Text('Відкрити пошук',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        fontFamily: 'Lato'
+                      ))
+                  ),
                   NavigationRailDestination(
                       icon: Icon(Icons.home),
                       label: Text('Додому',

@@ -1,23 +1,17 @@
-import 'package:flutter/cupertino.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:go_router/go_router.dart';
 import 'package:voita_app/constants/app_colors.dart';
-import 'package:voita_app/features/all-notes-desk/presentation/all_notes.dart';
-import 'package:voita_app/features/groups/presentation/groups.dart';
 import 'package:voita_app/features/notes-overview/bloc/notes_bloc.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/notes-overview/presentation/note_card.dart';
-import 'package:voita_app/features/notes-overview/presentation/notes_home.dart';
-import 'package:voita_app/features/search/presentation/search_bar.dart';
-import 'package:voita_app/shared-widgets/record-icon/presentation/record-icon.dart';
-import 'package:voita_app/shared-widgets/sidebar/sidebar.dart';
-import 'package:voita_app/utils/services/context_extension.dart';
+import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 
 class NotesOverviewDesk extends StatefulWidget {
   final List<Note> notes;
-  const NotesOverviewDesk({ super.key, required this.notes });
+  final StatefulNavigationShell navigationShell;
+  const NotesOverviewDesk({ super.key, required this.notes, required this.navigationShell });
 
   @override
   State<NotesOverviewDesk> createState() {
@@ -93,9 +87,8 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
 
   @override
   Widget build(BuildContext context) {
-    List<NotesEvent> events = const <NotesEvent>[
+    List<Equatable> events = const <Equatable>[
       OpenSearchBar(),
-      LoadNotes(),
       LoadNoteGroups(),
       LoadAllNotes(),
     ];
@@ -103,24 +96,24 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
     OverlayPortalController overlayController = OverlayPortalController();
 
     return BlocProvider(
-      create: (context) => NotesBloc()..add(const LoadNotes()),
+      create: (context) => NotesOverviewBloc(),
         child: MaterialApp(
           theme: theme,
           home: Scaffold(
-          body: BlocBuilder<NotesBloc, NotesState>(builder: (context, state) { 
+          body: BlocBuilder<NotesOverviewBloc, OverviewNotesState>(builder: (context, state) { 
 
               return Row(
-            children: <Widget>[
-                NavigationRail(
-                selectedIndex: selectedIndex,
+              children: <Widget>[
+              NavigationRail(
+                selectedIndex: widget.navigationShell.currentIndex,
                 elevation: 3,
                 groupAlignment: groupAlignment,
                 extended: true,
                 onDestinationSelected: (int index) {
-                  setState(() {
-                    selectedIndex = index;
-                    BlocProvider.of<NotesBloc>(context).add(events[selectedIndex]);
-                  });
+                  widget.navigationShell.goBranch(
+                    index,
+                    initialLocation: index == widget.navigationShell.currentIndex
+                  );
                 },
                 labelType: labelType,
                 indicatorColor: AppColor.purplishBlueLight,
@@ -225,36 +218,21 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
               ],
             ),
                 Expanded(
-                  child: BlocBuilder<NotesBloc, NotesState>(builder: (context, state) { 
-                    if (state is NotesLoaded) {
-                      return NotesHome(notes: widget.notes);
-                    }
-                    else if (state is NoteGroupsLoaded){
-                      return const Groups();
-                    }
-                    else if (state is AllNotesLoaded) {
-                      return const AllNotes();
-                    }
-                    else {
-                      overlayController.toggle();
-                      return const Placeholder();
-                    }
-                  }
-                ),
+                  child: widget.navigationShell
               ),
-        SizedBox(
-          child: OverlayPortal(
-          controller: overlayController,
-          overlayChildBuilder: (BuildContext context) {
-            return Positioned(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SearchBarApp(notes: widget.notes)
-              )
-            );
-          },
+        // SizedBox(
+        //   child: OverlayPortal(
+        //   controller: overlayController,
+        //   overlayChildBuilder: (BuildContext context) {
+        //     return Positioned(
+        //       child: Align(
+        //         alignment: Alignment.topCenter,
+        //         child: SearchBarApp(notes: widget.notes)
+        //       )
+        //     );
+        //   },
           
-        )),
+        // )),
         ]);
       }))));
   }

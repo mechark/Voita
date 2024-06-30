@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:voita_app/utils/data/note_repository_impl.dart';
 import 'package:voita_app/utils/services/notes_provider.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,15 +18,11 @@ class _SplashScreenState extends State<SplashScreen> {
   final NotesProvider notesProvider = NotesProvider();
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
 
-    _noteRepo.getAllNotes().then((notes) { 
-      notesProvider.notes = notes;
-      
-      Navigator.of(context)
-        .pushReplacementNamed('/voita_home', arguments: notes);
-    });
+    Future.delayed(const Duration(milliseconds: 100)).
+      then((value) => context.go('/home'));
   }
 
   @override

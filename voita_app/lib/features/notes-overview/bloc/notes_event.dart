@@ -1,70 +1,27 @@
 part of 'notes_bloc.dart';
 
-sealed class NotesEvent extends Equatable {
-  const NotesEvent();
+sealed class OverviewNotesEvent extends Equatable {
+  const OverviewNotesEvent();
 
   @override
   List<Object> get props => [];
 }
 
-class LoadNotes extends NotesEvent {
-  const LoadNotes();
-
-  @override
-  List<Object> get props => [];
-}
-
-class FailedToLoad extends NotesEvent {
-  final List<Note> notes;
-
-  const FailedToLoad({this.notes = const <Note>[]});
-
-  @override
-  List<Object> get props => [notes];
-}
-
-class AddNote extends NotesEvent {
-  final Note note;
-
-  const AddNote({required this.note});
-
-  @override
-  List<Object> get props => [note];
-}
-
-class EditNote extends NotesEvent {
-  final Note note;
-
-  const EditNote({required this.note});
-
-  @override
-  List<Object> get props => [note];
-}
-
-class DeleteNote extends NotesEvent {
-  final int id;
-
-  const DeleteNote({required this.id});
-
-  @override
-  List<Object> get props => [id];
-}
-
-class LoadNoteGroups extends NotesEvent {
+class LoadNoteGroups extends OverviewNotesEvent {
   const LoadNoteGroups();
 
   @override
   List<Object> get props => [];
 }
 
-class LoadAllNotes extends NotesEvent {
+class LoadAllNotes extends OverviewNotesEvent {
   const LoadAllNotes();
 
   @override
   List<Object> get props => [];
 }
 
-class OpenSearchBar extends NotesEvent {
+class OpenSearchBar extends OverviewNotesEvent {
   const OpenSearchBar();
 
   @override

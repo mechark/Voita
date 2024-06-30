@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:voita_app/constants/app_colors.dart';
 import 'package:voita_app/features/note-review/presentation/note_screen.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
+import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 import 'package:voita_app/utils/services/context_extension.dart';
 import 'package:voita_app/utils/services/time_formatter.dart';
 
 class SearchBarApp extends StatefulWidget {
-  final List<Note> notes;
-  const SearchBarApp({super.key, required this.notes});
+  const SearchBarApp({super.key});
 
     @override
     State<SearchBarApp> createState() {
@@ -16,16 +17,20 @@ class SearchBarApp extends StatefulWidget {
 }
 
 class _SearchBarAppState extends State<SearchBarApp> {
-  void _updateNote(Note updatedNote) {
-    setState(() {
-      int index = widget.notes.indexWhere((note) => note.id == updatedNote.id);
-      widget.notes[index] = updatedNote;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return BlocBuilder<NotesBloc, NotesState>(
+      builder: (context, state) {
+        if (state is NotesLoaded) {
+            void updateNote(Note updatedNote) {
+              setState(() {
+                int index = state.notes.indexWhere((note) => note.id == updatedNote.id);
+                state.notes[index] = updatedNote;
+              });
+            }
+
+            return Container(
         // constraints: context.responsive(const BoxConstraints(minWidth: 400, maxWidth: 1000), 
         //             xl: const BoxConstraints(minWidth: 150, maxWidth: 250, maxHeight: 60)),
         padding: const EdgeInsets.all(15),
@@ -57,7 +62,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
           suggestionsBuilder:
               (BuildContext context, SearchController controller) {
             String query = controller.text.toLowerCase();
-            List<Note> filteredNotes = widget.notes.where((note) {
+            List<Note> filteredNotes = state.notes.where((note) {
               String noteText = '${note.header} ${note.text}'.toLowerCase();
               return noteText.contains(query);
             }).toList();
@@ -104,12 +109,18 @@ class _SearchBarAppState extends State<SearchBarApp> {
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => NoteScreen(
-                                  note: note, onNoteUpdated: _updateNote)));
+                                  note: note, onNoteUpdated: updateNote)));
                         })
                   ));
               });
             }
           },
         ));
+        }       else {
+        // TODO change to error message
+          return const Placeholder();
+        }
+      }
+    );
   }
 }

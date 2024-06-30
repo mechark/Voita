@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:voita_app/features/notes-overview/presentation/notes_overview_desk.dart';
 import 'package:voita_app/features/notes-overview/presentation/notes_overview_mob.dart';
+import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 import 'package:voita_app/utils/services/context_extension.dart';
-import 'package:voita_app/utils/services/notes_provider.dart';
-import 'package:provider/provider.dart';
 
 class NotesScreen extends StatefulWidget {
-  const NotesScreen({super.key});
+  final StatefulNavigationShell navigationShell; 
+  const NotesScreen({super.key, required this.navigationShell});
 
   @override
   State<NotesScreen> createState() {
@@ -15,27 +17,25 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  late final NotesProvider notesProvider;
-
-  late final NotesOverviewMob mobWidget;
-  late final NotesOverviewDesk deskWidget;
-
-  @override
-  void initState() {
-    notesProvider = Provider.of<NotesProvider>(context);
-    mobWidget = NotesOverviewMob(notes: notesProvider.notes);
-    deskWidget = NotesOverviewDesk(notes: notesProvider.notes);
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: context.responsive<Widget>(
-        mobWidget,
-        xl: deskWidget 
-      )
+    
+    return BlocBuilder<NotesBloc, NotesState>(
+      builder: (context, state) {
+        if (state is NotesLoaded) {
+          return Container(
+            child: context.responsive<Widget>(
+              NotesOverviewMob(notes: state.notes),
+              xl: NotesOverviewDesk(notes: state.notes, navigationShell: widget.navigationShell)
+            )
+          );
+        }
+        else {
+          // TODO change to error message
+          return const Placeholder();
+        }
+      }
     );
   }
 }
