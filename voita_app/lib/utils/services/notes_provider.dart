@@ -6,7 +6,7 @@ class NotesProvider extends ChangeNotifier {
 
   List<Note> get notes => _notes;
 
-  set notes (List<Note> updatedNotes) {
+  set notes(List<Note> updatedNotes) {
     _notes = updatedNotes;
     notifyListeners();
   }

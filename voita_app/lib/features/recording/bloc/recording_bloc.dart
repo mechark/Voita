@@ -75,7 +75,8 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
     File("$modelPath/silero_vad.onnx").writeAsBytesSync(bytes);
   }
 
-  void _onOngoingRecording(OngoingRecording event, Emitter<RecordingState> emit) async {
+  void _onOngoingRecording(
+      OngoingRecording event, Emitter<RecordingState> emit) async {
     if (Platform.isAndroid || Platform.isIOS) {
       final directory = await getApplicationDocumentsDirectory();
       String modelPath = directory.path;

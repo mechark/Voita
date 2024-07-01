@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 class Groups extends StatefulWidget {
-  const Groups({ Key? key }) : super(key: key);
+  const Groups({Key? key}) : super(key: key);
 
   @override
   _GroupsState createState() => _GroupsState();
@@ -10,8 +10,9 @@ class Groups extends StatefulWidget {
 class _GroupsState extends State<Groups> {
   @override
   Widget build(BuildContext context) {
-    return Container(child:
-      Center(child: Text("Групи"),)
-    );
+    return Container(
+        child: Center(
+      child: Text("Групи"),
+    ));
   }
 }

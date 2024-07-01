@@ -13,9 +13,7 @@ class NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center, 
-      children: [
+    return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
       // Padding(
       //   padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
       //   child: Text(
@@ -28,19 +26,21 @@ class NoteCard extends StatelessWidget {
       // )),
       // ),
       Container(
-          constraints: context.responsive(const BoxConstraints(minWidth: 400, maxWidth: 1000),
-            xl: const BoxConstraints(minWidth: 320, maxWidth: 400, minHeight: 90, maxHeight: 90)),
+          constraints: context.responsive(
+              const BoxConstraints(minWidth: 400, maxWidth: 1000),
+              xl: const BoxConstraints(
+                  minWidth: 320, maxWidth: 400, minHeight: 90, maxHeight: 90)),
           margin: const EdgeInsets.only(top: 10),
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             color: context.responsive(AppColor.purplishBlue, xl: Colors.white),
             boxShadow: [
               BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: Offset(0, 3),
-            )
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: Offset(0, 3),
+              )
             ],
           ),
           child: ListTile(
@@ -52,9 +52,9 @@ class NoteCard extends StatelessWidget {
             title: Text(
               note.header,
               style: const TextStyle(
-                  fontWeight: FontWeight.bold, 
-                  fontFamily: 'Open Sans',
-                ),
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Open Sans',
+              ),
             ),
             subtitle: Column(
               // mainAxisAlignment: MainAxisAlignment.start,
@@ -81,16 +81,16 @@ class NoteCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(TimeFormatter.getDay(note.date) == TimeFormatter.getDay(DateTime.now())
-                        ? "Сьогодні"
-                        : TimeFormatter.getDay(note.date),
+                    Text(
+                        TimeFormatter.getDay(note.date) ==
+                                TimeFormatter.getDay(DateTime.now())
+                            ? "Сьогодні"
+                            : TimeFormatter.getDay(note.date),
                         style: TextStyle(
-                          fontSize: context.responsive(14, xl: 10)
-                        )),
+                            fontSize: context.responsive(14, xl: 10))),
                     Text(TimeFormatter.getTimeRange(note.date, note.duration),
-                     style: TextStyle(
-                          fontSize: context.responsive(14, xl: 10)
-                        )),
+                        style: TextStyle(
+                            fontSize: context.responsive(14, xl: 10))),
                   ],
                 )
               ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:voita_app/constants/app_colors.dart';
-import 'package:voita_app/features/notes-overview/bloc/notes_bloc.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/notes-overview/presentation/note_card.dart';
 import 'package:voita_app/features/search/presentation/search_bar.dart';
@@ -12,7 +11,7 @@ import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 
 class NotesOverviewMob extends StatefulWidget {
   final List<Note> notes;
-  const NotesOverviewMob({ super.key, required this.notes });
+  const NotesOverviewMob({super.key, required this.notes});
 
   @override
   State<NotesOverviewMob> createState() {
@@ -21,7 +20,6 @@ class NotesOverviewMob extends StatefulWidget {
 }
 
 class _NotesOverviewMobState extends State<NotesOverviewMob> {
-
   void _onPress() {}
 
   void _updateNote(Note updatedNote) {
@@ -82,7 +80,7 @@ class _NotesOverviewMobState extends State<NotesOverviewMob> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (context) => NotesOverviewBloc(),
+        create: (context) => NotesBloc(),
         child: Scaffold(
           appBar: AppBar(
             actions: [
@@ -94,58 +92,52 @@ class _NotesOverviewMobState extends State<NotesOverviewMob> {
               ),
             ],
           ),
-          body: BlocBuilder<NotesOverviewBloc, OverviewNotesState>(builder: (context, state) {
+          body: BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
             // BlocProvider.of<NotesOverviewBloc>(context).add(const LoadNotes());
-            if (state is NotesLoaded) {
-              return Column(children: [
-                const SearchBarApp(),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: widget.notes.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 5),
-                    itemBuilder: (BuildContext context, int index) {
-                      return Slidable(
-                          startActionPane: ActionPane(
-                              extentRatio: 0.2,
-                              motion: const StretchMotion(),
-                              children: [
-                                SlidableAction(
-                                  icon: Icons.share,
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: AppColor.spaceGray,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(20)),
-                                  onPressed: (dialogContext) => {},
-                                ),
-                              ]),
-                          endActionPane: ActionPane(
-                            motion: const BehindMotion(),
+            return Column(children: [
+              const SearchBarApp(),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: widget.notes.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 5),
+                  itemBuilder: (BuildContext context, int index) {
+                    return Slidable(
+                        startActionPane: ActionPane(
                             extentRatio: 0.2,
+                            motion: const StretchMotion(),
                             children: [
                               SlidableAction(
-                                icon: Icons.delete,
-                                foregroundColor: Colors.redAccent,
+                                icon: Icons.share,
                                 backgroundColor: Colors.white,
+                                foregroundColor: AppColor.spaceGray,
                                 borderRadius:
                                     const BorderRadius.all(Radius.circular(20)),
-                                onPressed: (dialogContext) => showAlertDialog(
-                                    context,
-                                    BlocProvider.of<NotesBloc>(context),
-                                    widget.notes[index].id),
+                                onPressed: (dialogContext) => {},
                               ),
-                            ],
-                          ),
-                          child: _noteCard(widget.notes[index]));
-                    },
-                  ),
-                )
-              ]);
-            } else if (state is NotesFailedToLoad) {
-              return const Text("Notes failed to load");
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
+                            ]),
+                        endActionPane: ActionPane(
+                          motion: const BehindMotion(),
+                          extentRatio: 0.2,
+                          children: [
+                            SlidableAction(
+                              icon: Icons.delete,
+                              foregroundColor: Colors.redAccent,
+                              backgroundColor: Colors.white,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              onPressed: (dialogContext) => showAlertDialog(
+                                  context,
+                                  BlocProvider.of<NotesBloc>(context),
+                                  widget.notes[index].id),
+                            ),
+                          ],
+                        ),
+                        child: _noteCard(widget.notes[index]));
+                  },
+                ),
+              )
+            ]);
           }),
           extendBody: true,
           floatingActionButtonLocation:

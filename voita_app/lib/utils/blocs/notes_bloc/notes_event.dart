@@ -8,8 +8,6 @@ sealed class NotesEvent extends Equatable {
 }
 
 class LoadNotes extends NotesEvent {
-  
-
   const LoadNotes();
 
   @override

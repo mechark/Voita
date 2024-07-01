@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:voita_app/constants/app_colors.dart';
@@ -12,7 +11,8 @@ import 'package:voita_app/utils/services/time_formatter.dart';
 class NoteScreen extends StatefulWidget {
   final Note note;
   final Function(Note) onNoteUpdated;
-  const NoteScreen({super.key, required this.onNoteUpdated, required this.note});
+  const NoteScreen(
+      {super.key, required this.onNoteUpdated, required this.note});
 
   @override
   State<NoteScreen> createState() {

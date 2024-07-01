@@ -3,11 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voita_app/features/notes-overview/presentation/notes_overview_desk.dart';
 import 'package:voita_app/features/notes-overview/presentation/notes_overview_mob.dart';
+import 'package:voita_app/features/splash/presentation/splash_screen.dart';
 import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 import 'package:voita_app/utils/services/context_extension.dart';
 
 class NotesScreen extends StatefulWidget {
-  final StatefulNavigationShell navigationShell; 
+  final StatefulNavigationShell navigationShell;
   const NotesScreen({super.key, required this.navigationShell});
 
   @override
@@ -17,25 +18,20 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-
   @override
   Widget build(BuildContext context) {
-    
-    return BlocBuilder<NotesBloc, NotesState>(
-      builder: (context, state) {
-        if (state is NotesLoaded) {
-          return Container(
+    return BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
+      if (state is NotesLoaded) {
+        return Container(
             child: context.responsive<Widget>(
-              NotesOverviewMob(notes: state.notes),
-              xl: NotesOverviewDesk(notes: state.notes, navigationShell: widget.navigationShell)
-            )
-          );
-        }
-        else {
-          // TODO change to error message
-          return const Placeholder();
-        }
+                NotesOverviewMob(notes: state.notes),
+                xl: NotesOverviewDesk(
+                    notes: state.notes,
+                    navigationShell: widget.navigationShell)));
+      } else {
+        // TODO change to error message
+        return const SplashScreen();
       }
-    );
+    });
   }
 }

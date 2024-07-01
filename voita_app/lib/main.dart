@@ -25,14 +25,13 @@ class _VoitaApp extends State<VoitaApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [
-        BlocProvider<NotesBloc>(
-          create: (context) => NotesBloc()..add(const LoadNotes())
-        ),
-      ],
-      child: MaterialApp.router(
-      routerConfig: VoitaRouter.router,
-      )
-    );
+        providers: [
+          BlocProvider<NotesBloc>(
+              lazy: false,
+              create: (context) => NotesBloc()..add(const LoadNotes())),
+        ],
+        child: MaterialApp.router(
+          routerConfig: VoitaRouter.router,
+        ));
   }
 }

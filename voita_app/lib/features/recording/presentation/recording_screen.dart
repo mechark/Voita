@@ -11,10 +11,10 @@ class RecordingScreen extends StatefulWidget {
   final Function(Note)? onNoteCreated;
   const RecordingScreen({super.key, this.onNoteCreated});
 
-    @override
-    State<RecordingScreen> createState() {
-      return _NoteScreenState();
-    }
+  @override
+  State<RecordingScreen> createState() {
+    return _NoteScreenState();
+  }
 }
 
 class _NoteScreenState extends State<RecordingScreen> {
