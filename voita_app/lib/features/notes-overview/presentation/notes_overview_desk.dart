@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voita_app/constants/app_colors.dart';
@@ -20,6 +21,10 @@ class NotesOverviewDesk extends StatefulWidget {
 }
 
 class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
+  late final OverlayEntry overlayEntry;
+  late final Overlay overlay;
+  bool fakeSearchEnabled = true;
+
   void _updateNote(Note updatedNote) {
     setState(() {
       int index = widget.notes.indexWhere((note) => note.id == updatedNote.id);
@@ -85,6 +90,31 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
   ThemeData theme = ThemeData.light();
 
   @override
+  void initState() {
+    super.initState();
+
+    overlayEntry = OverlayEntry(
+      builder: (context) {
+        return const Expanded(
+            child:
+                Align(
+                alignment: Alignment.center, 
+                child: SearchBarApp()),
+              );
+      },
+    );
+  }
+
+  void showSearch() {
+    final searchOverlay = Overlay.of(context);
+    searchOverlay.insert(overlayEntry);
+  }
+
+  void hideSearch() {
+    overlayEntry.remove();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
         value: BlocProvider.of<NotesBloc>(context),
@@ -110,7 +140,18 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                       SizedBox(
                         width: 250,
                         child: Column(
+                          // crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            const Text(
+                                    "Voita",
+                                    style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColor.spaceGray
+                                    ),
+                            ),
+                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -140,14 +181,55 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                                         })),
                               ],
                             ),
-                            const SearchBarApp()
+                            const SizedBox(height: 20),
+                            Container( 
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: const BorderRadius.all(Radius.circular(4)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColor.spaceGray.withOpacity(0.1),
+                                    spreadRadius: 0.5,
+                                    blurRadius: 1,
+                                    offset: const Offset(0, 2)
+                                  )
+                                ]
+                              ),
+                              height: 40,
+                              width: 220,
+                              child: TextField(
+                              cursorColor: const Color.fromARGB(255, 107, 107, 107),
+                              textAlignVertical: TextAlignVertical.center,
+                              enabled: fakeSearchEnabled,
+                              onTap: () {
+                                setState(() => fakeSearchEnabled = false);
+                                showSearch();
+                              },
+                              // onTapOutside: () => hideSearch(),
+                              // style: TextStyle(
+                              //   fontFamily: 'Lato',
+                              //   fontSize: 20,
+                              // ),
+                               decoration: const InputDecoration(
+                                focusColor: AppColor.spaceGray,
+                                isDense: true,
+                                // labelText: 'Пошук',
+                                border: InputBorder.none,
+                                // border: OutlineInputBorder(
+                                //   borderSide: BorderSide(
+                                //     width: 0.1,
+                                //     color: Color.fromARGB(255, 255, 5, 5)
+                                //   ),
+                                // ),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  size: 20
+                                ),
+                              )
+                            )),
+                            const SizedBox(height: 20),
                           ],
                         ),
-                      ),
-                      const Divider(
-                        height: 20,
-                        thickness: 20,
-                        color: Colors.black,
                       ),
                     ],
                   ),
@@ -160,7 +242,10 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                           child: FloatingActionButton(
                             backgroundColor: AppColor.purplishBlue,
                             hoverColor: AppColor.darkPurple,
-                            onPressed: () => {},
+                            onPressed: () {
+                              setState(() => fakeSearchEnabled = true);
+                              hideSearch();
+                            },
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

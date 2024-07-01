@@ -79,8 +79,8 @@ class _NotesOverviewMobState extends State<NotesOverviewMob> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-        create: (context) => NotesBloc(),
+    return BlocProvider.value(
+        value: BlocProvider.of<NotesBloc>(context),
         child: Scaffold(
           appBar: AppBar(
             actions: [
