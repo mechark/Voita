@@ -21,9 +21,9 @@ Voita – speech-to-text notes for ukrainian language
 ```
 ‣ presentation
     Widgets, States, Controllers
-‣ application  
+‣ services  
     Services
-‣ domain
+‣ models
     Models
 ‣ data
     Repositories, DTOs, Data sources
