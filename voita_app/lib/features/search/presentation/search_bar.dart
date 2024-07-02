@@ -23,7 +23,8 @@ class _SearchBarAppState extends State<SearchBarApp> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
         value: BlocProvider.of<NotesBloc>(context),
-        child: BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
+        child: BlocBuilder<NotesBloc, NotesState>(
+          builder: (context, state) {
           if (state is NotesLoaded) {
             void updateNote(Note updatedNote) {
               setState(() {
@@ -35,14 +36,15 @@ class _SearchBarAppState extends State<SearchBarApp> {
 
             return Container(
                 // color: AppColor.spaceGray,
-                constraints: context.responsive(
-                    const BoxConstraints(minWidth: 400, maxWidth: 1000),
-                    xl: const BoxConstraints(
-                        minWidth: 400, maxWidth: 500, maxHeight: 100)),
-                padding: const EdgeInsets.all(15),
+                // constraints: context.responsive(
+                //     const BoxConstraints(minWidth: 400, maxWidth: 1000),
+                //     xl: const BoxConstraints(
+                //         minWidth: 400, maxWidth: 500, maxHeight: 100)),
+                padding: const EdgeInsets.all(100),
                 child: SearchAnchor(
+                  viewLeading: const Icon(Icons.search),
                   viewShape: const RoundedRectangleBorder(),
-                  viewConstraints: const BoxConstraints(minHeight: 200, maxHeight: 600),
+                  // viewConstraints: const BoxConstraints(minHeight: 200, maxHeight: 600),
                   viewBackgroundColor: Colors.white,
                   viewSurfaceTintColor: Colors.white,
                   dividerColor: AppColor.darkPurple,
@@ -56,10 +58,11 @@ class _SearchBarAppState extends State<SearchBarApp> {
                       surfaceTintColor: MaterialStateProperty.all(Colors.white),
                       controller: controller,
                       onChanged: (_) {
-                        controller.openView();
+                        // controller.openView();
                       },
                       onTap: () {
-                      
+                        controller.openView();
+                        // controller.openView();
                       },
                       onSubmitted: (value) => {controller.clear()},
                       leading: const Icon(

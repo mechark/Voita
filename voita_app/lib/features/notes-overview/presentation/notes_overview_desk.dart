@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:voita_app/constants/app_colors.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/notes-overview/presentation/note_card.dart';
-import 'package:voita_app/features/search/presentation/search_bar.dart';
+import 'package:voita_app/features/search/presentation/voita_search_bar.dart';
 import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 
 class NotesOverviewDesk extends StatefulWidget {
@@ -95,23 +97,38 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
 
     overlayEntry = OverlayEntry(
       builder: (context) {
-        return const Expanded(
+        return Expanded(
             child:
                 Align(
-                alignment: Alignment.center, 
-                child: SearchBarApp()),
-              );
+                alignment: const Alignment(0, -0.6), 
+                child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 0.8,
+                  sigmaY: 0.8
+                ),
+                child: Container(
+                  color: Colors.black.withOpacity(1),
+                  child: const VoitaSearchBar()
+                )
+              ),
+              ));
       },
     );
   }
 
   void showSearch() {
+    setState(() => fakeSearchEnabled = false);
     final searchOverlay = Overlay.of(context);
-    searchOverlay.insert(overlayEntry);
+    if (!overlayEntry.mounted) {
+      searchOverlay.insert(overlayEntry);
+    }
   }
 
   void hideSearch() {
-    overlayEntry.remove();
+    setState(() => fakeSearchEnabled = true);
+    if (overlayEntry.mounted) {
+      overlayEntry.remove();
+    }
   }
 
   @override
@@ -120,7 +137,10 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
         value: BlocProvider.of<NotesBloc>(context),
         child: MaterialApp(
             theme: theme,
-            home: Scaffold(body:
+            home: Container(
+                color: Colors.black.withOpacity(0),
+                child: 
+              Scaffold(body:
                 BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
               return Row(children: <Widget>[
                 NavigationRail(
@@ -182,7 +202,10 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                            Container( 
+                            TapRegion(
+                              onTapInside: (tap) => showSearch(),
+                              onTapOutside: (tap) => hideSearch(),
+                              child: Container( 
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: const BorderRadius.all(Radius.circular(4)),
@@ -202,8 +225,8 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                               textAlignVertical: TextAlignVertical.center,
                               enabled: fakeSearchEnabled,
                               onTap: () {
-                                setState(() => fakeSearchEnabled = false);
-                                showSearch();
+                                
+                                // showSearch();
                               },
                               // onTapOutside: () => hideSearch(),
                               // style: TextStyle(
@@ -226,7 +249,7 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                                   size: 20
                                 ),
                               )
-                            )),
+                            ))),
                             const SizedBox(height: 20),
                           ],
                         ),
@@ -243,8 +266,7 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                             backgroundColor: AppColor.purplishBlue,
                             hoverColor: AppColor.darkPurple,
                             onPressed: () {
-                              setState(() => fakeSearchEnabled = true);
-                              hideSearch();
+                              
                             },
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -300,6 +322,6 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                 ),
                 Expanded(child: widget.navigationShell),
               ]);
-            }))));
+            })))));
   }
 }
