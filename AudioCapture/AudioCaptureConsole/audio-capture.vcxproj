@@ -109,11 +109,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>mmdevapi.lib;
-Mfplat.lib
-;Mf.lib
-;Mfreadwrite.lib
-;Mfuuid.lib;DuplexAudioCapture.dll</AdditionalDependencies>
+      <AdditionalDependencies>mmdevapi.lib;Mfplat.lib;Mf.lib;Mfreadwrite.lib;Mfuuid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\forru\source\repos\audio-capture\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -147,6 +143,9 @@ Mfplat.lib
     <ProjectReference Include="..\DuplexAudioCapture\DuplexAudioCapture.vcxproj">
       <Project>{f4166ce2-898d-4cc3-821a-c48c9d36e985}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
