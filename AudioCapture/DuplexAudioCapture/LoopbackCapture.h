@@ -19,7 +19,6 @@ class CLoopbackCapture :
     public RuntimeClass< RuntimeClassFlags< ClassicCom >, FtmBase, IActivateAudioInterfaceCompletionHandler >
 {
 public:
-    __declspec(dllexport) CLoopbackCapture(WAVEFORMATEX* pStreamFormat);
     __declspec(dllexport) CLoopbackCapture() = default;
     __declspec(dllexport) ~CLoopbackCapture();
 

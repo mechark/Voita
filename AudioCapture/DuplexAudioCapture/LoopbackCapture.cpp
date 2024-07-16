@@ -17,15 +17,6 @@ HRESULT CLoopbackCapture::SetDeviceStateErrorIfFailed(HRESULT hr)
     return hr;
 }
 
-CLoopbackCapture::CLoopbackCapture(WAVEFORMATEX* pStreamFormat) {
-    m_CaptureFormat.nChannels = pStreamFormat->nChannels;
-    m_CaptureFormat.wFormatTag = pStreamFormat->wFormatTag;
-    m_CaptureFormat.nSamplesPerSec = pStreamFormat->nSamplesPerSec;
-    m_CaptureFormat.nBlockAlign = pStreamFormat->nBlockAlign;
-    m_CaptureFormat.nAvgBytesPerSec = pStreamFormat->nAvgBytesPerSec;
-    m_CaptureFormat.wBitsPerSample = pStreamFormat->wBitsPerSample;
-}
-
 HRESULT CLoopbackCapture::InitializeLoopbackCapture()
 {
     // Create events for sample ready or user stop
@@ -102,9 +93,17 @@ HRESULT CLoopbackCapture::ActivateCompleted(IActivateAudioInterfaceAsyncOperatio
             // Get the pointer for the Audio Client
             RETURN_IF_FAILED(punkAudioInterface.copy_to(&m_AudioClient));
 
+            m_CaptureFormat.wFormatTag = WAVE_FORMAT_PCM;
+            m_CaptureFormat.nChannels = 1;
+            m_CaptureFormat.nSamplesPerSec = 16000;
+            m_CaptureFormat.wBitsPerSample = 16;
+            m_CaptureFormat.nBlockAlign = m_CaptureFormat.nChannels * m_CaptureFormat.wBitsPerSample / BITS_PER_BYTE;
+            m_CaptureFormat.nAvgBytesPerSec = m_CaptureFormat.nSamplesPerSec * m_CaptureFormat.nBlockAlign;
+            m_CaptureFormat.cbSize = 0;
+
             // Initialize the AudioClient in Shared Mode with the user specified buffer
             RETURN_IF_FAILED(m_AudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
-                AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
+                AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM,
                 200000,
                 AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM,
                 &m_CaptureFormat,

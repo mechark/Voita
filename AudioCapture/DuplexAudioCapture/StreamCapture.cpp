@@ -13,33 +13,7 @@
 #define REFTIMES_PER_MILLISEC  10000
 #define BITS_PER_BYTE 8
 
-HRESULT StreamCapture::TransformToWAVEFORMATEX(WAVEFORMATEXTENSIBLE* pStreamFormatExtensible) {
-	// I don't give a fuck that it looks ugly, so should you or me in the future
-	if (IsEqualGUID(pStreamFormatExtensible->SubFormat, KSDATAFORMAT_SUBTYPE_PCM)) {
-		pStreamFormat->wFormatTag = WAVE_FORMAT_PCM;
-	}
-	else if (IsEqualGUID(pStreamFormatExtensible->SubFormat, KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)) {
-		pStreamFormat->wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
-	}
-	else if (IsEqualGUID(pStreamFormatExtensible->SubFormat, KSDATAFORMAT_SUBTYPE_DRM)) {
-		pStreamFormat->wFormatTag = WAVE_FORMAT_DRM;
-	}
-	else if (IsEqualGUID(pStreamFormatExtensible->SubFormat, KSDATAFORMAT_SUBTYPE_ALAW)) {
-		pStreamFormat->wFormatTag = WAVE_FORMAT_ALAW;
-	}
-	else if (IsEqualGUID(pStreamFormatExtensible->SubFormat, KSDATAFORMAT_SUBTYPE_MULAW)) {
-		pStreamFormat->wFormatTag = WAVE_FORMAT_MULAW;
-	}
-	else if (IsEqualGUID(pStreamFormatExtensible->SubFormat, KSDATAFORMAT_SUBTYPE_ADPCM)) {
-		pStreamFormat->wFormatTag = WAVE_FORMAT_ADPCM;
-	}
-
-	pStreamFormat->cbSize = 0;
-
-	return S_OK;
-}
-
-HRESULT StreamCapture::ActivateAudioClient(WAVEFORMATEX * streamFormat) {
+HRESULT StreamCapture::ActivateAudioClient() {
 	RETURN_IF_FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
 	RETURN_IF_FAILED(CoCreateInstance(
@@ -55,23 +29,24 @@ HRESULT StreamCapture::ActivateAudioClient(WAVEFORMATEX * streamFormat) {
 	));
 	RETURN_IF_FAILED(pAudioClient->GetMixFormat(&pStreamFormat));
 
-	// Transform to the proper format
-	WAVEFORMATEXTENSIBLE* streamFormatExtensible = reinterpret_cast<WAVEFORMATEXTENSIBLE*>(pStreamFormat);
-	RETURN_IF_FAILED(TransformToWAVEFORMATEX(streamFormatExtensible));
+	pStreamFormat->wFormatTag = WAVE_FORMAT_PCM;
+	pStreamFormat->nChannels = 1;
+	pStreamFormat->nSamplesPerSec = 16000;
+	pStreamFormat->wBitsPerSample = 16;
+	pStreamFormat->nBlockAlign = pStreamFormat->nChannels * pStreamFormat->wBitsPerSample / BITS_PER_BYTE;
+	pStreamFormat->nAvgBytesPerSec = pStreamFormat->nSamplesPerSec * pStreamFormat->nBlockAlign;
+	pStreamFormat->cbSize = 0;
 
 	RETURN_IF_FAILED(pAudioClient->Initialize(
-		AUDCLNT_SHAREMODE_SHARED, 0,
+		AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM,
 		hnsBufferDuration, hnsPeriodicity,
 		pStreamFormat, nullptr
 	));
-
-	*streamFormat = *pStreamFormat;
 
 	return S_OK;
 }
 
 HRESULT StreamCapture::FinishCapture() {
-	//OnFinishCapture();
 	isDone = true;
 	if (m_captureThread.joinable()) {
 		m_captureThread.join();
@@ -122,7 +97,6 @@ HRESULT StreamCapture::OnSampleReady() {
 
 void StreamCapture::OnStartCapture() {
 	pAudioClient->GetBufferSize(&bufferFrameCount);
-	std::cout << "OnStartCapture: " << std::this_thread::get_id();
 	pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&pCaptureClient);
 
 	hnsActualDuration = (double)REFTIMES_PER_SEC *
@@ -134,6 +108,7 @@ void StreamCapture::OnStartCapture() {
 
 void StreamCapture::StartCaptureAsync(LPCWSTR file)
 {
+	ActivateAudioClient();
 	audioFile.CreateWAVFile(*pStreamFormat, file);
 	m_captureThread = std::thread([this]() {
 		OnStartCapture();

@@ -5,9 +5,8 @@
 #include "FullDuplexAudioRecorder.h"
 
 HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTree) {
-	RETURN_IF_FAILED(streamCapture.ActivateAudioClient(&pStreamFormat));
 
-    CLoopbackCapture loopbackCapture(&pStreamFormat);
+    CLoopbackCapture loopbackCapture;
 	loopbackCapture.StartCaptureAsync(processId, includeTree, L"output.wav");
 
 	streamCapture.StartCaptureAsync(L"input.wav");

@@ -7,7 +7,7 @@ class StreamCapture {
 	public:
 		__declspec(dllexport) void StartCaptureAsync(LPCWSTR file);
 		__declspec(dllexport) HRESULT FinishCapture();
-		__declspec(dllexport) HRESULT ActivateAudioClient(WAVEFORMATEX* streamFormat);
+		__declspec(dllexport) HRESULT ActivateAudioClient();
 
 	private:
 		const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
@@ -36,5 +36,4 @@ class StreamCapture {
 		__declspec(dllexport) HRESULT OnSampleReady();
 		__declspec(dllexport) void OnStartCapture();
 		__declspec(dllexport) HRESULT OnFinishCapture();
-		__declspec(dllexport) HRESULT TransformToWAVEFORMATEX(WAVEFORMATEXTENSIBLE* pStreamFormatExtensible);
 };
