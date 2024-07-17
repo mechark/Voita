@@ -4,13 +4,21 @@
 #include <mfidl.h>
 #include "FullDuplexAudioRecorder.h"
 
-HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTree) {
+FullDuplexAudioRecorder::FullDuplexAudioRecorder() 
+	: iBuffer(BUFF_SIZE), oBuffer(BUFF_SIZE)
+{
+}
 
-    CLoopbackCapture loopbackCapture;
+HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTree) 
+{
+    CLoopbackCapture loopbackCapture(&oBuffer);
+	StreamCapture streamCapture(&iBuffer, &oBuffer);
+
 	loopbackCapture.StartCaptureAsync(processId, includeTree, L"output.wav");
-
 	streamCapture.StartCaptureAsync(L"input.wav");
+
 	Sleep(10000);
+
 	streamCapture.FinishCapture();
 	loopbackCapture.StopCaptureAsync();
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -152,6 +152,7 @@ Mfplat.lib
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AudioFile.h" />
+    <ClInclude Include="circular_buffer.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="FullDuplexAudioRecorder.h" />
@@ -160,6 +161,7 @@ Mfplat.lib
     <ClInclude Include="ProcessManager.h" />
     <ClInclude Include="Sink.h" />
     <ClInclude Include="StreamCapture.h" />
+    <ClInclude Include="StreamMerger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioFile.cpp" />
@@ -175,6 +177,7 @@ Mfplat.lib
     <ClCompile Include="ProcessManager.cpp" />
     <ClCompile Include="Sink.cpp" />
     <ClCompile Include="StreamCapture.cpp" />
+    <ClCompile Include="StreamMerger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -182,13 +185,11 @@ Mfplat.lib
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
-    <Import Project="..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\AudioCaptureConsole\packages\Microsoft.Windows.ImplementationLibrary.1.0.240122.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
 </Project>

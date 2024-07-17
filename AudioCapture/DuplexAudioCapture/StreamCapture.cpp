@@ -13,6 +13,12 @@
 #define REFTIMES_PER_MILLISEC  10000
 #define BITS_PER_BYTE 8
 
+StreamCapture::StreamCapture(circular_buffer<int16_t> * iBuffer, circular_buffer<int16_t> * oBuffer)
+{
+	pIBuffer = iBuffer;
+	pOBuffer = oBuffer;
+}
+
 HRESULT StreamCapture::ActivateAudioClient() {
 	RETURN_IF_FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
@@ -77,6 +83,8 @@ HRESULT StreamCapture::OnSampleReady() {
 
 		DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign;
 
+		pIBuffer->push(nextDataPacketAddr, numFramesAvailable);
+
 		DWORD dwBytesWritten = 0;
 		RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
 			audioFile.m_hFile.get(),
@@ -86,6 +94,8 @@ HRESULT StreamCapture::OnSampleReady() {
 			NULL));
 
 		RETURN_IF_FAILED(pCaptureClient->ReleaseBuffer(numFramesAvailable));
+
+		streamMerger.Impose(nextDataPacketAddr, numFramesAvailable, pStreamFormat);
 
 		audioFile.m_cbDataSize += cbBytesToCapture;
 

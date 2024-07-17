@@ -12,6 +12,7 @@
 
 #include "Common.h"
 #include "AudioFile.h"
+#include "circular_buffer.h"
 
 using namespace Microsoft::WRL;
 
@@ -19,6 +20,7 @@ class CLoopbackCapture :
     public RuntimeClass< RuntimeClassFlags< ClassicCom >, FtmBase, IActivateAudioInterfaceCompletionHandler >
 {
 public:
+    __declspec(dllexport) CLoopbackCapture(circular_buffer<int16_t> * buffer);
     __declspec(dllexport) CLoopbackCapture() = default;
     __declspec(dllexport) ~CLoopbackCapture();
 
@@ -83,4 +85,6 @@ private:
     DeviceState m_DeviceState{ DeviceState::Uninitialized };
     wil::unique_event_nothrow m_hActivateCompleted;
     wil::unique_event_nothrow m_hCaptureStopped;
+
+    circular_buffer<int16_t> * pOBuffer;
 };

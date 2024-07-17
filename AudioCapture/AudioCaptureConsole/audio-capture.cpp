@@ -5,7 +5,7 @@
 
 #include <FullDuplexAudioRecorder.h>
 #include <ProcessManager.h>
-
+#include <circular_buffer.h>
 
 int main()
 {

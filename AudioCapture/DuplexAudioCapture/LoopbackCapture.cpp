@@ -4,7 +4,7 @@
 #include <wchar.h>
 #include <iostream>
 #include <audioclientactivationparams.h>
-#include <LoopbackCapture.h>
+#include "LoopbackCapture.h"
 
 #define BITS_PER_BYTE 8
 
@@ -16,6 +16,7 @@ HRESULT CLoopbackCapture::SetDeviceStateErrorIfFailed(HRESULT hr)
     }
     return hr;
 }
+
 
 HRESULT CLoopbackCapture::InitializeLoopbackCapture()
 {
@@ -39,6 +40,11 @@ HRESULT CLoopbackCapture::InitializeLoopbackCapture()
     RETURN_IF_FAILED(m_hCaptureStopped.create(wil::EventOptions::None));
 
     return S_OK;
+}
+
+CLoopbackCapture::CLoopbackCapture(circular_buffer<int16_t>* buffer)
+{
+    pOBuffer = buffer;
 }
 
 CLoopbackCapture::~CLoopbackCapture()
@@ -328,6 +334,8 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
         // Write File
         if (m_DeviceState != DeviceState::Stopping)
         {
+            pOBuffer->push(Data, FramesAvailable);
+
             DWORD dwBytesWritten = 0;
             RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
                 audioFile.m_hFile.get(),

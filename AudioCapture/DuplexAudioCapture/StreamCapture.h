@@ -2,12 +2,18 @@
 #include <thread>
 
 #include "AudioFile.h"
+#include "StreamMerger.h"
+#include "circular_buffer.h"
 
 class StreamCapture {
 	public:
+		__declspec(dllexport) StreamCapture(circular_buffer<int16_t>* iBuffer, circular_buffer<int16_t>* oBuffer);
+		__declspec(dllexport) StreamCapture() = default;
 		__declspec(dllexport) void StartCaptureAsync(LPCWSTR file);
 		__declspec(dllexport) HRESULT FinishCapture();
 		__declspec(dllexport) HRESULT ActivateAudioClient();
+
+
 
 	private:
 		const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
@@ -31,7 +37,11 @@ class StreamCapture {
 		DWORD flags;
 		WAVEFORMATEX* pStreamFormat;
 		AudioFile audioFile;
+		StreamMerger streamMerger;
 		std::thread m_captureThread;
+
+		circular_buffer<int16_t> * pIBuffer;
+		circular_buffer<int16_t> * pOBuffer;
 
 		__declspec(dllexport) HRESULT OnSampleReady();
 		__declspec(dllexport) void OnStartCapture();
