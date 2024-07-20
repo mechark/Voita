@@ -3,11 +3,19 @@
 #include <mmeapi.h>
 #include <basetsd.h>
 #include <intsafe.h>
+#include <vector>
 
 #include "StreamMerger.h"
+#include "circular_buffer.h"
 
-void StreamMerger::Impose(BYTE* nextDataPacketAddr, UINT32 numFramesAvailable, WAVEFORMATEX* pStreamFormat) {
-	DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign;
+std::vector<int16_t> StreamMerger::Impose(circular_buffer<int16_t>* iBuffer, circular_buffer<int16_t>* oBuffer) {
+	size_t frameSize = max(oBuffer->getFrameSize(), iBuffer->getFrameSize());
+	std::vector<int16_t> mergedFrame(frameSize);
 
-	
+	for (size_t i = 0; i < frameSize; i++)
+	{
+		mergedFrame[i] = (iBuffer->read() + oBuffer->read()) / 2;
+	}
+
+	return mergedFrame;
 }

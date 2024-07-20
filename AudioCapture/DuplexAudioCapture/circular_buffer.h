@@ -24,6 +24,7 @@ public:
 
 	void push(BYTE * data, size_t count = 1)
 	{
+		lastFrameSize = count;
 		for (size_t i = 0; i < count; i++)
 		{
 			BYTE* newData = data + i * sizeof(T);
@@ -34,10 +35,8 @@ public:
 
 	T read()
 	{
-		T val = buffer[tail];
 		tail = (tail + 1) % buffSize;
-
-		return val;
+		return buffer[tail];
 	}
 
 	int size()
@@ -46,12 +45,16 @@ public:
 		return buffSize - head + tail;
 	}
 
+	int getFrameSize()
+	{
+		return lastFrameSize;
+	}
+
 private:
 	size_t buffSize;
 	size_t head = 0;
 	size_t tail = 0;
-
-	bool full = false;
+	size_t lastFrameSize = 0;
 
 	std::unique_ptr<T[]> buffer;
 

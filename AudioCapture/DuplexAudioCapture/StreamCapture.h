@@ -7,13 +7,12 @@
 
 class StreamCapture {
 	public:
-		__declspec(dllexport) StreamCapture(circular_buffer<int16_t>* iBuffer, circular_buffer<int16_t>* oBuffer);
+		__declspec(dllexport) StreamCapture(circular_buffer<int16_t>* iBuffer, std::atomic<bool> * lock);
 		__declspec(dllexport) StreamCapture() = default;
 		__declspec(dllexport) void StartCaptureAsync(LPCWSTR file);
 		__declspec(dllexport) HRESULT FinishCapture();
 		__declspec(dllexport) HRESULT ActivateAudioClient();
-
-
+		__declspec(dllexport) void Init(circular_buffer<int16_t>* iBuffer, std::atomic<bool>* lock);
 
 	private:
 		const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
@@ -40,8 +39,8 @@ class StreamCapture {
 		StreamMerger streamMerger;
 		std::thread m_captureThread;
 
+		std::atomic<bool> * lock;
 		circular_buffer<int16_t> * pIBuffer;
-		circular_buffer<int16_t> * pOBuffer;
 
 		__declspec(dllexport) HRESULT OnSampleReady();
 		__declspec(dllexport) void OnStartCapture();

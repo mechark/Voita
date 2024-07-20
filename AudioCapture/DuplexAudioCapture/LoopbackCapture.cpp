@@ -42,9 +42,16 @@ HRESULT CLoopbackCapture::InitializeLoopbackCapture()
     return S_OK;
 }
 
-CLoopbackCapture::CLoopbackCapture(circular_buffer<int16_t>* buffer)
+CLoopbackCapture::CLoopbackCapture(circular_buffer<int16_t>* buffer, std::atomic<bool>* lock)
 {
     pOBuffer = buffer;
+    lock_loopback = lock;
+}
+
+void CLoopbackCapture::Init(circular_buffer<int16_t>* buffer, std::atomic<bool>* lock)
+{
+    pOBuffer = buffer;
+    lock_loopback = lock;
 }
 
 CLoopbackCapture::~CLoopbackCapture()
@@ -335,6 +342,7 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
         if (m_DeviceState != DeviceState::Stopping)
         {
             pOBuffer->push(Data, FramesAvailable);
+            lock_loopback->store(false);
 
             DWORD dwBytesWritten = 0;
             RETURN_IF_WIN32_BOOL_FALSE(WriteFile(

@@ -13,10 +13,16 @@
 #define REFTIMES_PER_MILLISEC  10000
 #define BITS_PER_BYTE 8
 
-StreamCapture::StreamCapture(circular_buffer<int16_t> * iBuffer, circular_buffer<int16_t> * oBuffer)
+StreamCapture::StreamCapture(circular_buffer<int16_t> * iBuffer, std::atomic<bool> * mix_lock)
 {
 	pIBuffer = iBuffer;
-	pOBuffer = oBuffer;
+	lock = mix_lock;
+}
+
+void StreamCapture::Init(circular_buffer<int16_t>* iBuffer, std::atomic<bool>* mix_lock)
+{
+	pIBuffer = iBuffer;
+	lock = mix_lock;
 }
 
 HRESULT StreamCapture::ActivateAudioClient() {
@@ -65,8 +71,7 @@ HRESULT StreamCapture::FinishCapture() {
 
 HRESULT StreamCapture::OnSampleReady() {
 	// Sleep for half the buffer duration.
-	
-	Sleep(hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
+	//Sleep(hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
 	
 	RETURN_IF_FAILED(pCaptureClient->GetNextPacketSize(&numFramesInNextPacket));
 
@@ -84,6 +89,8 @@ HRESULT StreamCapture::OnSampleReady() {
 		DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign;
 
 		pIBuffer->push(nextDataPacketAddr, numFramesAvailable);
+		lock->store(false);
+		//std::vector<int16_t> mergedAudio = streamMerger.Impose(pIBuffer, pOBuffer);
 
 		DWORD dwBytesWritten = 0;
 		RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
@@ -95,7 +102,6 @@ HRESULT StreamCapture::OnSampleReady() {
 
 		RETURN_IF_FAILED(pCaptureClient->ReleaseBuffer(numFramesAvailable));
 
-		streamMerger.Impose(nextDataPacketAddr, numFramesAvailable, pStreamFormat);
 
 		audioFile.m_cbDataSize += cbBytesToCapture;
 

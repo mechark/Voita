@@ -5,6 +5,7 @@
 #include <initguid.h>
 #include <guiddef.h>
 #include <mfapi.h>
+#include <atomic>
 
 #include <wrl\implements.h>
 #include <wil\com.h>
@@ -20,7 +21,8 @@ class CLoopbackCapture :
     public RuntimeClass< RuntimeClassFlags< ClassicCom >, FtmBase, IActivateAudioInterfaceCompletionHandler >
 {
 public:
-    __declspec(dllexport) CLoopbackCapture(circular_buffer<int16_t> * buffer);
+    __declspec(dllexport) CLoopbackCapture(circular_buffer<int16_t> * buffer, std::atomic<bool> * lock);
+    __declspec(dllexport) void Init(circular_buffer<int16_t>* iBuffer, std::atomic<bool>* lock);
     __declspec(dllexport) CLoopbackCapture() = default;
     __declspec(dllexport) ~CLoopbackCapture();
 
@@ -87,4 +89,5 @@ private:
     wil::unique_event_nothrow m_hCaptureStopped;
 
     circular_buffer<int16_t> * pOBuffer;
+    std::atomic<bool> * lock_loopback;
 };
