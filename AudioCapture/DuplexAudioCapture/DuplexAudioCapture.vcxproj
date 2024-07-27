@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -110,19 +116,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;DUPLEXAUDIOCAPTURE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\forru\source\repos\DuplexAudioCapture;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Voita\AudioCapture\DuplexAudioCapture\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>mmdevapi.lib;
-Mfplat.lib
-;Mf.lib
-;Mfreadwrite.lib
-;Mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mmdevapi.lib;Mfplat.lib;Mf.lib;Mfreadwrite.lib;Mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,9 +135,9 @@ Mfplat.lib
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;DUPLEXAUDIOCAPTURE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\forru\source\repos\DuplexAudioCapture;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Voita\AudioCapture\DuplexAudioCapture\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,33 +153,28 @@ Mfplat.lib
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AudioFile.h" />
-    <ClInclude Include="circular_buffer.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="FullDuplexAudioRecorder.h" />
-    <ClInclude Include="LoopbackCapture.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="ProcessManager.h" />
-    <ClInclude Include="Sink.h" />
-    <ClInclude Include="StreamCapture.h" />
-    <ClInclude Include="StreamMerger.h" />
+    <ClInclude Include="include\AudioFile.h" />
+    <ClInclude Include="include\circular_buffer.h" />
+    <ClInclude Include="include\Common.h" />
+    <ClInclude Include="include\framework.h" />
+    <ClInclude Include="include\FullDuplexAudioRecorder.h" />
+    <ClInclude Include="include\LoopbackCapture.h" />
+    <ClInclude Include="include\pch.h" />
+    <ClInclude Include="include\ProcessManager.h" />
+    <ClInclude Include="include\Sink.h" />
+    <ClInclude Include="include\StreamCapture.h" />
+    <ClInclude Include="include\StreamMerger.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AudioFile.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="FullDuplexAudioRecorder.cpp" />
-    <ClCompile Include="LoopbackCapture.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="ProcessManager.cpp" />
-    <ClCompile Include="Sink.cpp" />
-    <ClCompile Include="StreamCapture.cpp" />
-    <ClCompile Include="StreamMerger.cpp" />
+    <ClCompile Include="src\AudioFile.cpp" />
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\FullDuplexAudioRecorder.cpp" />
+    <ClCompile Include="src\LoopbackCapture.cpp" />
+    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\ProcessManager.cpp" />
+    <ClCompile Include="src\Sink.cpp" />
+    <ClCompile Include="src\StreamCapture.cpp" />
+    <ClCompile Include="src\StreamMerger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -15,66 +15,66 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
+    <ClInclude Include="include\AudioFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h">
+    <ClInclude Include="include\circular_buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioFile.h">
+    <ClInclude Include="include\Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common.h">
+    <ClInclude Include="include\framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FullDuplexAudioRecorder.h">
+    <ClInclude Include="include\FullDuplexAudioRecorder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LoopbackCapture.h">
+    <ClInclude Include="include\LoopbackCapture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProcessManager.h">
+    <ClInclude Include="include\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sink.h">
+    <ClInclude Include="include\ProcessManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StreamCapture.h">
+    <ClInclude Include="include\Sink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StreamMerger.h">
+    <ClInclude Include="include\StreamCapture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="circular_buffer.h">
+    <ClInclude Include="include\StreamMerger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="src\AudioFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="src\dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AudioFile.cpp">
+    <ClCompile Include="src\FullDuplexAudioRecorder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FullDuplexAudioRecorder.cpp">
+    <ClCompile Include="src\LoopbackCapture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoopbackCapture.cpp">
+    <ClCompile Include="src\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProcessManager.cpp">
+    <ClCompile Include="src\ProcessManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sink.cpp">
+    <ClCompile Include="src\Sink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StreamCapture.cpp">
+    <ClCompile Include="src\StreamCapture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StreamMerger.cpp">
+    <ClCompile Include="src\StreamMerger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

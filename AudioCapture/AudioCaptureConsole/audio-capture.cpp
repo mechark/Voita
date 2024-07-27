@@ -8,46 +8,8 @@
 #include <circular_buffer.h>
 #include <thread>
 
-std::atomic<int> cond_variable1(0);
-std::atomic<int> cond_variable2(0);
-std::atomic<bool> is_running(true);
-
-void consumer()
-{
-	while (is_running)
-	{
-		std::cout << cond_variable1.is_lock_free() << cond_variable2.is_lock_free();
-		while (cond_variable1.load() == 0 || cond_variable2.load() == 0);
-		std::cout << "Do something\n";
-		cond_variable1.store(0);
-	}
-}
-
-void producer1()
-{
-	for (int i = 0; i < 100000; i++)
-	{
-		int k = 0;
-	}
-
-	std::cout << "Data is here1\n";
-	cond_variable1.store(1);
-}
-
-void producer2()
-{
-	for (int i = 0; i < 100000; i++)
-	{
-		int k = 0;
-	}
-
-	std::cout << "Data is here2\n";
-	cond_variable2.store(1);
-}
-
 int main()
 {
-	
 	ProcessManager processManager;
 	FullDuplexAudioRecorder audioRecorder;
 

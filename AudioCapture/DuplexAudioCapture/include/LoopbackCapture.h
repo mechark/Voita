@@ -7,9 +7,9 @@
 #include <mfapi.h>
 #include <atomic>
 
-#include <wrl\implements.h>
-#include <wil\com.h>
-#include <wil\result.h>
+#include <wil/com.h>
+#include <wrl/implements.h>
+#include <wil/result.h>
 
 #include "Common.h"
 #include "AudioFile.h"

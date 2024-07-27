@@ -79,4 +79,3 @@ HRESULT FullDuplexAudioRecorder::StopRecording()
 
 	return S_OK;
 }
-
