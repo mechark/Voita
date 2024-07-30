@@ -8,10 +8,10 @@
 #include "LoopbackCapture.h"
 #include "StreamCapture.h"
 #include "circular_buffer.h"
+#include "StreamMixer.h";
 #include "AudioFile.h"
 
 #define BUFF_SIZE 1024
-#define MAX_AMPLITUDE 32768
 
 class FullDuplexAudioRecorder {
 	public:
@@ -26,6 +26,7 @@ class FullDuplexAudioRecorder {
 
 		WAVEFORMATEX pStreamFormat{};
 		AudioFile audioFile;
+		StreamMixer streamMixer;
 
 		std::thread mixingThread;
 		std::atomic<bool> lock_capture;

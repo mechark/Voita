@@ -73,7 +73,7 @@ HRESULT StreamCapture::FinishCapture() {
 		m_captureThread.join();
 	}
 	RETURN_IF_FAILED(pAudioClient->Stop());
-	audioFile.FixWAVHeader();
+	//audioFile.FixWAVHeader();
 
 	return S_OK;
 }
@@ -93,11 +93,12 @@ HRESULT StreamCapture::OnSampleReady() {
 			nextDataPacketAddr = NULL;
 		}
 
-		DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign;
+		//DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign;
 
 		pIBuffer->push(nextDataPacketAddr, numFramesAvailable);
 		lock->store(false);
 
+		/*
 		DWORD dwBytesWritten = 0;
 		RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
 			audioFile.m_hFile.get(),
@@ -109,7 +110,7 @@ HRESULT StreamCapture::OnSampleReady() {
 		RETURN_IF_FAILED(pCaptureClient->ReleaseBuffer(numFramesAvailable));
 
 
-		audioFile.m_cbDataSize += cbBytesToCapture;
+		audioFile.m_cbDataSize += cbBytesToCapture;*/
 
 		RETURN_IF_FAILED(pCaptureClient->GetNextPacketSize(&numFramesInNextPacket));
 	}
@@ -130,16 +131,16 @@ HRESULT StreamCapture::OnStartCapture() {
 
 HRESULT StreamCapture::StartCaptureAsync(LPCWSTR file)
 {
-	HRESULT hr = ActivateAudioClient();
-	if (hr == BUSY_DEVICE_ERROR)
-	{
-		throw std::exception("Failed to initialize audio client! The device is busy!", hr);
-		return hr;
-	}
-
-	audioFile.CreateWAVFile(*pStreamFormat, file);
+	//audioFile.CreateWAVFile(*pStreamFormat, file);
 	
 	m_captureThread = std::thread([this]() {
+		HRESULT hr = ActivateAudioClient();
+		if (hr == BUSY_DEVICE_ERROR)
+		{
+			throw std::exception("Failed to initialize audio client! The device is busy!", hr);
+			return hr;
+		}
+
 		OnStartCapture();
 		while (!isDone) {
 			OnSampleReady();

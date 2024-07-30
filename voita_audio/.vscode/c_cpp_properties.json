@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:\\Voita\\AudioCapture\\DuplexAudioCapture\\include"
+                "C:\\Voita\\AudioCapture\\DuplexAudioCapture\\include",
+                "${workspaceFolder}/windows/include/voita_audio"
             ],
             "defines": [
                 "_DEBUG",

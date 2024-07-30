@@ -22,19 +22,21 @@ class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   final _voitaAudioPlugin = VoitaAudio();
   final _audioStream = AudioStreamHandler();
-
+ 
   @override
   void initState() {
     super.initState();
     initPlatformState();
 
-    getFrames();
+    while(true) {
+      getFrames();
+    }
   }
 
   void getFrames() async {
-    await for (var frame in _audioStream.audioStream) {
-      print(frame);
-    }
+    var data = await _audioStream.audioStream.first;
+    bool empty = data.isEmpty;
+    print(data);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.

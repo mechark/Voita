@@ -1,1 +1,0 @@
-C:\Voita\AudioCapture\AudioCaptureConsole\x64\Debug\audio-capture.exe

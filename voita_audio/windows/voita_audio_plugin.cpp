@@ -15,7 +15,8 @@
 #include <sstream>
 #include <thread>
 #include <flutter/event_stream_handler_functions.h>
-#include <FullDuplexAudioRecorder.h>
+#include <ProcessManager.h>
+#include "AudioRecorder.h"
 
 namespace voita_audio {
 
@@ -48,19 +49,26 @@ std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnListenIntern
     const flutter::EncodableValue *arguments,
     std::unique_ptr<FlEventSink> &&events) 
 {
-    sink = std::move(events);
+    // sink = std::move(events);
+    ProcessManager processManager;
+    AudioRecorder recorder;
+    recorder.Init(std::move(events));
 
+    DWORD processId = processManager.FindProcessByName(L"Firefox.exe");
+
+    recorder.StartRecording(processId, true);
+    //recorder.StopRecording();
+    /*
     while (sink)
     {
-        FullDuplexAudioRecorder recorder;
         std::vector<int32_t> audioFrame(100);
         for (int i = 0; i < 100; i++) {
             audioFrame[i] = i; 
         }
-    
+        
         sink->Success(flutter::EncodableValue(audioFrame));
     }
-
+    */
     return nullptr;
 }
 

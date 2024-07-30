@@ -1,0 +1,8 @@
+C:\Voita\AudioCapture\DuplexAudioCapture\src\AudioFile.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\AudioFile.obj
+C:\Voita\AudioCapture\DuplexAudioCapture\src\dllmain.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\dllmain.obj
+C:\Voita\AudioCapture\DuplexAudioCapture\src\FullDuplexAudioRecorder.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\FullDuplexAudioRecorder.obj
+C:\Voita\AudioCapture\DuplexAudioCapture\src\LoopbackCapture.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\LoopbackCapture.obj
+C:\Voita\AudioCapture\DuplexAudioCapture\src\pch.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\pch.obj
+C:\Voita\AudioCapture\DuplexAudioCapture\src\ProcessManager.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\ProcessManager.obj
+C:\Voita\AudioCapture\DuplexAudioCapture\src\StreamCapture.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\StreamCapture.obj
+C:\Voita\AudioCapture\DuplexAudioCapture\src\StreamMixer.cpp;C:\Voita\AudioCapture\DuplexAudioCapture\x64\Debug\StreamMixer.obj

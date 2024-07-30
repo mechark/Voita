@@ -3,7 +3,6 @@
 #include <vector>
 #include <mfidl.h>
 #include "FullDuplexAudioRecorder.h"
-#include "StreamMerger.h"
 #include <algorithm>
 
 FullDuplexAudioRecorder::FullDuplexAudioRecorder()
@@ -39,40 +38,19 @@ void FullDuplexAudioRecorder::mixing()
 	{
 		if (!lock_capture && !lock_loopback)
 		{
-			size_t size = max(iBuffer.getFrameSize(), oBuffer.getFrameSize());
-			std::vector<int16_t> mergedFrame(size);
+			std::vector<int32_t> mixedFrame = streamMixer.Impose(&iBuffer, &oBuffer);
 
-			DWORD cbBytesToCapture = size * pStreamFormat.nBlockAlign;
-			
-			for (size_t i = 0; i < size; i++)
-			{
-				int ival = iBuffer.read();
-				int oval = oBuffer.read();
-				int mixed = 0;
-
-				ival += MAX_AMPLITUDE;
-				oval += MAX_AMPLITUDE;
-
-				if ((ival < MAX_AMPLITUDE) || (oval < MAX_AMPLITUDE))
-					mixed = ival * oval / MAX_AMPLITUDE;
-				else
-					mixed = 2 * (ival + oval) - (ival * oval) / MAX_AMPLITUDE - 2*MAX_AMPLITUDE;
-
-				if (mixed == 2*MAX_AMPLITUDE) mixed = 2*MAX_AMPLITUDE;
-				mixed += INT16_MIN;
-
-				mergedFrame[i] = static_cast<int16_t>(mixed);
-			}
-
+			/*
+			DWORD cbBytesToCapture = mixedFrame.size() * pStreamFormat.nBlockAlign;
 			DWORD dwBytesWritten = 0;
 			WriteFile(
 				audioFile.m_hFile.get(),
-				mergedFrame.data(),
+				mixedFrame.data(),
 				cbBytesToCapture,
 				&dwBytesWritten,
 				NULL);
 
-			audioFile.m_cbDataSize += cbBytesToCapture;
+			audioFile.m_cbDataSize += cbBytesToCapture;*/
 
 			lock_capture.store(true);
 			lock_loopback.store(true);
@@ -82,10 +60,10 @@ void FullDuplexAudioRecorder::mixing()
 
 HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTree)
 {
-	audioFile.CreateWAVFile(pStreamFormat, L"duplex.wav");
+	//audioFile.CreateWAVFile(pStreamFormat, L"duplex.wav");
 
-	streamCapture.StartCaptureAsync(L"input.wav");
-	loopbackCapture.StartCaptureAsync(processId, includeTree, L"output.wav");
+	streamCapture.StartCaptureAsync();
+	loopbackCapture.StartCaptureAsync(processId, includeTree);
 
 	mixingThread = std::thread(&FullDuplexAudioRecorder::mixing, this);
 
@@ -100,7 +78,7 @@ HRESULT FullDuplexAudioRecorder::StopRecording()
 	// Kills mixingThread
 	is_mixing.store(false);
 
-	RETURN_IF_FAILED(audioFile.FixWAVHeader());
+	//RETURN_IF_FAILED(audioFile.FixWAVHeader());
 
 	return S_OK;
 }

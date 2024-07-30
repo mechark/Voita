@@ -2,7 +2,6 @@
 #include <thread>
 
 #include "AudioFile.h"
-#include "StreamMerger.h"
 #include "circular_buffer.h"
 
 #define BUSY_DEVICE_ERROR 0x88890010
@@ -11,7 +10,7 @@ class StreamCapture {
 	public:
 		__declspec(dllexport) StreamCapture(circular_buffer<int16_t>* iBuffer, std::atomic<bool> * lock);
 		__declspec(dllexport) StreamCapture() = default;
-		__declspec(dllexport) HRESULT StartCaptureAsync(LPCWSTR file);
+		__declspec(dllexport) HRESULT StartCaptureAsync(LPCWSTR file = L"");
 		__declspec(dllexport) HRESULT FinishCapture();
 		__declspec(dllexport) HRESULT ActivateAudioClient();
 		__declspec(dllexport) void Init(circular_buffer<int16_t>* iBuffer, std::atomic<bool>* lock);
@@ -38,7 +37,6 @@ class StreamCapture {
 		DWORD flags;
 		WAVEFORMATEX* pStreamFormat;
 		AudioFile audioFile;
-		StreamMerger streamMerger;
 		std::thread m_captureThread;
 
 		std::atomic<bool> * lock;

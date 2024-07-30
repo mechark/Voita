@@ -39,13 +39,10 @@
     <ClInclude Include="include\ProcessManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Sink.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\StreamCapture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\StreamMerger.h">
+    <ClInclude Include="include\StreamMixer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,13 +65,10 @@
     <ClCompile Include="src\ProcessManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sink.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\StreamCapture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\StreamMerger.cpp">
+    <ClCompile Include="src\StreamMixer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

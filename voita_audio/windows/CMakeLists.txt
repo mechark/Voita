@@ -28,6 +28,8 @@ list(APPEND PLUGIN_SOURCES
 add_library(${PLUGIN_NAME} SHARED
   "include/voita_audio/voita_audio_plugin_c_api.h"
   "voita_audio_plugin_c_api.cpp"
+  "include/voita_audio/AudioRecorder.h"
+  "AudioRecorder.cpp"
   ${PLUGIN_SOURCES}
 )
 
