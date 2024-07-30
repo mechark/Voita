@@ -4,8 +4,9 @@
 #include <mfidl.h>
 #include "FullDuplexAudioRecorder.h"
 #include "StreamMerger.h"
+#include <algorithm>
 
-FullDuplexAudioRecorder::FullDuplexAudioRecorder() 
+FullDuplexAudioRecorder::FullDuplexAudioRecorder()
 	: iBuffer(BUFF_SIZE), oBuffer(BUFF_SIZE)
 {
 	pStreamFormat.wFormatTag = WAVE_FORMAT_PCM;
@@ -18,8 +19,9 @@ FullDuplexAudioRecorder::FullDuplexAudioRecorder()
 
 	lock_capture.store(true);
 	lock_loopback.store(true);
+	is_mixing.store(true);
 
-	streamCapture.Init(&iBuffer, &lock_loopback);
+	streamCapture.Init(&iBuffer, &lock_capture);
 	loopbackCapture.Init(&oBuffer, &lock_loopback);
 }
 
@@ -32,34 +34,53 @@ FullDuplexAudioRecorder::~FullDuplexAudioRecorder()
 
 void FullDuplexAudioRecorder::mixing()
 {
-	while (true)
+	Sleep(1500);
+	while (is_mixing)
 	{
-		while (lock_capture || lock_loopback);
-		size_t size = max(iBuffer.getFrameSize(), oBuffer.getFrameSize());
-		std::vector<int16_t> mergedFrame(size);
-
-		for (size_t i = 0; i < size; i++)
+		if (!lock_capture && !lock_loopback)
 		{
-			mergedFrame[i] = (iBuffer.read() + oBuffer.read()) / 2;
+			size_t size = max(iBuffer.getFrameSize(), oBuffer.getFrameSize());
+			std::vector<int16_t> mergedFrame(size);
+
+			DWORD cbBytesToCapture = size * pStreamFormat.nBlockAlign;
+			
+			for (size_t i = 0; i < size; i++)
+			{
+				int ival = iBuffer.read();
+				int oval = oBuffer.read();
+				int mixed = 0;
+
+				ival += MAX_AMPLITUDE;
+				oval += MAX_AMPLITUDE;
+
+				if ((ival < MAX_AMPLITUDE) || (oval < MAX_AMPLITUDE))
+					mixed = ival * oval / MAX_AMPLITUDE;
+				else
+					mixed = 2 * (ival + oval) - (ival * oval) / MAX_AMPLITUDE - 2*MAX_AMPLITUDE;
+
+				if (mixed == 2*MAX_AMPLITUDE) mixed = 2*MAX_AMPLITUDE;
+				mixed += INT16_MIN;
+
+				mergedFrame[i] = static_cast<int16_t>(mixed);
+			}
+
+			DWORD dwBytesWritten = 0;
+			WriteFile(
+				audioFile.m_hFile.get(),
+				mergedFrame.data(),
+				cbBytesToCapture,
+				&dwBytesWritten,
+				NULL);
+
+			audioFile.m_cbDataSize += cbBytesToCapture;
+
+			lock_capture.store(true);
+			lock_loopback.store(true);
 		}
-		DWORD cbBytesToCapture = size * pStreamFormat.nBlockAlign;
-
-		DWORD dwBytesWritten = 0;
-		WriteFile(
-			audioFile.m_hFile.get(),
-			mergedFrame.data(),
-			cbBytesToCapture,
-			&dwBytesWritten,
-			NULL);
-
-		audioFile.m_cbDataSize += cbBytesToCapture;
-
-		lock_capture.store(true);
-		lock_loopback.store(true);
 	}
 }
 
-HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTree) 
+HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTree)
 {
 	audioFile.CreateWAVFile(pStreamFormat, L"duplex.wav");
 
@@ -73,9 +94,13 @@ HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTre
 
 HRESULT FullDuplexAudioRecorder::StopRecording()
 {
-	mixingThread.detach();
-	streamCapture.FinishCapture();
-	loopbackCapture.StopCaptureAsync();
+	RETURN_IF_FAILED(streamCapture.FinishCapture());
+	RETURN_IF_FAILED(loopbackCapture.StopCaptureAsync());
+
+	// Kills mixingThread
+	is_mixing.store(false);
+
+	RETURN_IF_FAILED(audioFile.FixWAVHeader());
 
 	return S_OK;
 }

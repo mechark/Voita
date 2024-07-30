@@ -11,6 +11,7 @@
 #include "AudioFile.h"
 
 #define BUFF_SIZE 1024
+#define MAX_AMPLITUDE 32768
 
 class FullDuplexAudioRecorder {
 	public:
@@ -29,9 +30,11 @@ class FullDuplexAudioRecorder {
 		std::thread mixingThread;
 		std::atomic<bool> lock_capture;
 		std::atomic<bool> lock_loopback;
+		std::atomic<bool> is_mixing;
 
 		circular_buffer<int16_t> iBuffer;
 		circular_buffer<int16_t> oBuffer;
+
 
 		__declspec(dllexport) void mixing();
 };

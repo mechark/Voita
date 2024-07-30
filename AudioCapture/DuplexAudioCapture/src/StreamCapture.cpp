@@ -12,6 +12,7 @@
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
 #define BITS_PER_BYTE 8
+#define MA_AUDCLNT_E_SERVICE_NOT_RUNNING          ((HRESULT)0x88890010)
 
 StreamCapture::StreamCapture(circular_buffer<int16_t> * iBuffer, std::atomic<bool> * mix_lock)
 {
@@ -40,7 +41,7 @@ HRESULT StreamCapture::ActivateAudioClient() {
 		NULL, (void**)&pAudioClient
 	));
 	RETURN_IF_FAILED(pAudioClient->GetMixFormat(&pStreamFormat));
-
+	
 	pStreamFormat->wFormatTag = WAVE_FORMAT_PCM;
 	pStreamFormat->nChannels = 1;
 	pStreamFormat->nSamplesPerSec = 16000;
@@ -111,25 +112,32 @@ HRESULT StreamCapture::OnSampleReady() {
 	return S_OK;
 }
 
-void StreamCapture::OnStartCapture() {
-	pAudioClient->GetBufferSize(&bufferFrameCount);
-	pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&pCaptureClient);
+HRESULT StreamCapture::OnStartCapture() {
+	RETURN_IF_FAILED(pAudioClient->GetBufferSize(&bufferFrameCount));
+	RETURN_IF_FAILED(pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&pCaptureClient));
 
 	hnsActualDuration = (double)REFTIMES_PER_SEC *
 		bufferFrameCount / pStreamFormat->nSamplesPerSec;
 
-	pAudioClient->Start();
+	RETURN_IF_FAILED(pAudioClient->Start());
 }
 
 
-void StreamCapture::StartCaptureAsync(LPCWSTR file)
+HRESULT StreamCapture::StartCaptureAsync(LPCWSTR file)
 {
-	ActivateAudioClient();
+	HRESULT hr = ActivateAudioClient();
+	if (hr != S_OK)
+	{
+		throw std::exception("Excpetion ", hr);
+		return hr;
+	}
+
 	audioFile.CreateWAVFile(*pStreamFormat, file);
+	
 	m_captureThread = std::thread([this]() {
 		OnStartCapture();
 		while (!isDone) {
 			OnSampleReady();
 		}
-	});
+		});
 }
