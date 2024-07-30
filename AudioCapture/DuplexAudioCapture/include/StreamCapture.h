@@ -5,6 +5,8 @@
 #include "StreamMerger.h"
 #include "circular_buffer.h"
 
+#define BUSY_DEVICE_ERROR 0x88890010
+
 class StreamCapture {
 	public:
 		__declspec(dllexport) StreamCapture(circular_buffer<int16_t>* iBuffer, std::atomic<bool> * lock);

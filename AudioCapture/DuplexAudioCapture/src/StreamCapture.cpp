@@ -12,7 +12,6 @@
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
 #define BITS_PER_BYTE 8
-#define MA_AUDCLNT_E_SERVICE_NOT_RUNNING          ((HRESULT)0x88890010)
 
 StreamCapture::StreamCapture(circular_buffer<int16_t> * iBuffer, std::atomic<bool> * mix_lock)
 {
@@ -50,12 +49,21 @@ HRESULT StreamCapture::ActivateAudioClient() {
 	pStreamFormat->nAvgBytesPerSec = pStreamFormat->nSamplesPerSec * pStreamFormat->nBlockAlign;
 	pStreamFormat->cbSize = 0;
 
-	RETURN_IF_FAILED(pAudioClient->Initialize(
-		AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM,
-		hnsBufferDuration, hnsPeriodicity,
-		pStreamFormat, nullptr
-	));
+	HRESULT hr;
+	for (int i = 0; i < 20; i++)
+	{
+		hr = pAudioClient->Initialize(
+			AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM,
+			hnsBufferDuration, hnsPeriodicity,
+			pStreamFormat, nullptr
+		);
 
+		if (hr == S_OK) break;
+		Sleep(1000);
+	}
+
+	if (hr == BUSY_DEVICE_ERROR) return BUSY_DEVICE_ERROR;
+	
 	return S_OK;
 }
 
@@ -71,8 +79,6 @@ HRESULT StreamCapture::FinishCapture() {
 }
 
 HRESULT StreamCapture::OnSampleReady() {
-	// Sleep for half the buffer duration.
-	//Sleep(hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
 	
 	RETURN_IF_FAILED(pCaptureClient->GetNextPacketSize(&numFramesInNextPacket));
 
@@ -84,14 +90,13 @@ HRESULT StreamCapture::OnSampleReady() {
 
 		if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
 		{
-			nextDataPacketAddr = NULL;  // Tell CopyData to write silence.
+			nextDataPacketAddr = NULL;
 		}
 
 		DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign;
 
 		pIBuffer->push(nextDataPacketAddr, numFramesAvailable);
 		lock->store(false);
-		//std::vector<int16_t> mergedAudio = streamMerger.Impose(pIBuffer, pOBuffer);
 
 		DWORD dwBytesWritten = 0;
 		RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
@@ -126,9 +131,9 @@ HRESULT StreamCapture::OnStartCapture() {
 HRESULT StreamCapture::StartCaptureAsync(LPCWSTR file)
 {
 	HRESULT hr = ActivateAudioClient();
-	if (hr != S_OK)
+	if (hr == BUSY_DEVICE_ERROR)
 	{
-		throw std::exception("Excpetion ", hr);
+		throw std::exception("Failed to initialize audio client! The device is busy!", hr);
 		return hr;
 	}
 
@@ -139,5 +144,7 @@ HRESULT StreamCapture::StartCaptureAsync(LPCWSTR file)
 		while (!isDone) {
 			OnSampleReady();
 		}
-		});
+	});
+
+	return S_OK;
 }
