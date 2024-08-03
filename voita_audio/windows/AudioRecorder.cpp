@@ -2,10 +2,11 @@
 #include <mfidl.h>
 #include <flutter/standard_method_codec.h>
 #include <algorithm>
+#include <thread>
 
 #include "AudioRecorder.h"
 
-AudioRecorder::AudioRecorder()
+AudioRecorder::AudioRecorder(HWND message_window)
 	: iBuffer(BUFF_SIZE), oBuffer(BUFF_SIZE)
 {
 	pStreamFormat.wFormatTag = WAVE_FORMAT_PCM;
@@ -22,11 +23,8 @@ AudioRecorder::AudioRecorder()
 
 	streamCapture.Init(&iBuffer, &lock_capture);
 	loopbackCapture.Init(&oBuffer, &lock_loopback);
-}
 
-void AudioRecorder::Init(std::unique_ptr<FlEventSink> event_sink)
-{
-    sink = std::move(event_sink);
+	message_window_ = message_window;
 }
 
 void AudioRecorder::mixing()
@@ -37,7 +35,10 @@ void AudioRecorder::mixing()
 		if (!lock_capture && !lock_loopback)
 		{
 			std::vector<int32_t> mixedFrame = streamMixer.Impose(&iBuffer, &oBuffer);
-            sink->Success(flutter::EncodableValue(mixedFrame));
+			mixedBuffer.assign(mixedFrame.begin(), mixedFrame.end());
+			
+			auto pVec = mixedBuffer.data();
+            PostMessage(message_window_, WM_AUDIO_FRAME, mixedFrame.size(), reinterpret_cast<LPARAM>(pVec));
 
 			lock_capture.store(true);
 			lock_loopback.store(true);
@@ -48,16 +49,10 @@ void AudioRecorder::mixing()
 HRESULT AudioRecorder::StartRecording(DWORD processId, bool includeTree)
 {
 	HRESULT hr = streamCapture.StartCaptureAsync();
-    std::cout << std::hex << hr << std::endl;
+    if (hr != S_OK) throw std::exception("Failed to start microphone capture");
 	hr = loopbackCapture.StartCaptureAsync(processId, includeTree);
-    std::cout << std::hex << hr;
+    if (hr != S_OK) throw std::exception("Failed to start loopback capture");
 	mixingThread = std::thread(&AudioRecorder::mixing, this);
-    if (sink != nullptr) {
-        while(sink);
-    }
-
-    RETURN_IF_FAILED(streamCapture.FinishCapture());
-	RETURN_IF_FAILED(loopbackCapture.StopCaptureAsync());
 
 	return hr;
 }
@@ -69,6 +64,10 @@ HRESULT AudioRecorder::StopRecording()
 
 	// Kills mixingThread
 	is_mixing.store(false);
+	if (mixingThread.joinable()) {
+		mixingThread.join();
+		is_mixing = true;
+	}
 
 	return S_OK;
 }

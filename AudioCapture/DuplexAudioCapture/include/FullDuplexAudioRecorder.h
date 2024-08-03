@@ -35,6 +35,7 @@ class FullDuplexAudioRecorder {
 
 		circular_buffer<int16_t> iBuffer;
 		circular_buffer<int16_t> oBuffer;
+		circular_buffer<int32_t> mixedBuffer;
 
 
 		__declspec(dllexport) void mixing();

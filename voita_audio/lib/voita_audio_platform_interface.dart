@@ -1,6 +1,7 @@
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'dart:typed_data';
 
-import 'voita_audio_method_channel.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:voita_audio/audio_stream_handler.dart';
 
 abstract class VoitaAudioPlatform extends PlatformInterface {
   /// Constructs a VoitaAudioPlatform.
@@ -8,7 +9,7 @@ abstract class VoitaAudioPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static VoitaAudioPlatform _instance = MethodChannelVoitaAudio();
+  static VoitaAudioPlatform _instance = AudioStreamHandler();
 
   /// The default instance of [VoitaAudioPlatform] to use.
   ///
@@ -23,7 +24,7 @@ abstract class VoitaAudioPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Stream<Int32List> getAudioStream() {
+    throw UnimplementedError('getAudioStream() has not been implemented.');
   }
 }

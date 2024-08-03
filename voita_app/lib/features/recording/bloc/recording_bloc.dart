@@ -12,6 +12,7 @@ import 'package:voita_app/features/recording/services/note_creator_service.dart'
 import 'package:voita_app/features/recording/services/recorder_service.dart';
 import 'package:voita_app/utils/data/note_repository_impl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:voita_audio/voita_audio.dart';
 
 part 'recording_event.dart';
 part 'recording_state.dart';
@@ -75,6 +76,10 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
     File("$modelPath/silero_vad.onnx").writeAsBytesSync(bytes);
   }
 
+  void onData(Int32List frame) {
+    print(frame);
+  }
+
   void _onOngoingRecording(
       OngoingRecording event, Emitter<RecordingState> emit) async {
     if (Platform.isAndroid || Platform.isIOS) {
@@ -89,6 +94,10 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
           threshold: 0.7,
           minSilenceDurationMs: 300,
           speechPadMs: 100);
+    }
+    else if (Platform.isWindows) {
+      VoitaAudio recorder = VoitaAudio();
+      recorder.getAudioStream().listen(onData);
     }
 
     _recorder.addListener(_addUtterance);

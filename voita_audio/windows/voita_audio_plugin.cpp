@@ -17,6 +17,7 @@
 #include <flutter/event_stream_handler_functions.h>
 #include <ProcessManager.h>
 #include "AudioRecorder.h"
+#include <mutex>
 
 namespace voita_audio {
 
@@ -28,6 +29,7 @@ typedef flutter::StreamHandlerError<flutter::EncodableValue> FlStreamHandlerErro
 class AudioRecorderStreamHandler : public FlStreamHandler {
 public:
     AudioRecorderStreamHandler(flutter::PluginRegistrarWindows *registrar);
+    ~AudioRecorderStreamHandler();
 
 protected:
     std::unique_ptr<FlStreamHandlerError>
@@ -39,44 +41,94 @@ protected:
 
 private:
     flutter::PluginRegistrarWindows *_registrar = nullptr;
+    std::unique_ptr<AudioRecorder> recorder;
     std::unique_ptr<FlEventSink> sink;
+    HWND message_window;
+    int window_proc_id = -1;
+    static const UINT WM_AUDIO_FRAME = WM_USER + 1;
+
+    LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    HWND CreateMessageWindow(HINSTANCE hInstance);
 };
 
+LRESULT CALLBACK AudioRecorderStreamHandler::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    if (uMsg == WM_AUDIO_FRAME) {
+        if (lParam) {
+            int32_t* pFrame = reinterpret_cast<int32_t*>(lParam);
+            int size = (int) wParam;
+
+            std::vector<int32_t> frame(pFrame, pFrame + size);
+            sink->Success(flutter::EncodableValue(frame));
+        }
+        return 0;
+    }
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
 AudioRecorderStreamHandler::AudioRecorderStreamHandler(flutter::PluginRegistrarWindows *registrar)
-    : _registrar(registrar) {}
+    : _registrar(registrar) 
+{
+    
+    
+}
+
+HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
+    const wchar_t CLASS_NAME[] = L"VoitaAudioMessageWindow";
+
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = CLASS_NAME;
+
+    RegisterClass(&wc);
+
+    return CreateWindowEx(
+        0,                              // Optional window styles
+        CLASS_NAME,                     // Window class
+        L"VoitaAudioMessageWindow",     // Window text
+        WS_OVERLAPPEDWINDOW,            // Window style
+
+        // Size and position
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+        HWND_MESSAGE,                   // Parent window    
+        NULL,                           // Menu
+        hInstance,                      // Instance handle
+        NULL                            // Additional application data
+    );
+}
+
+AudioRecorderStreamHandler::~AudioRecorderStreamHandler() {
+  _registrar->UnregisterTopLevelWindowProcDelegate(window_proc_id);
+}
 
 std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnListenInternal(
     const flutter::EncodableValue *arguments,
     std::unique_ptr<FlEventSink> &&events) 
 {
-    // sink = std::move(events);
+    if (window_proc_id == -1) {
+        window_proc_id = _registrar->RegisterTopLevelWindowProcDelegate(
+            [this](HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+                message_window = hWnd;
+                return WindowProc(hWnd, message, wParam, lParam);
+            }
+        );
+    }
+
+    sink = std::move(events);
     ProcessManager processManager;
-    AudioRecorder recorder;
-    recorder.Init(std::move(events));
+    recorder = std::make_unique<AudioRecorder>(message_window);
 
     DWORD processId = processManager.FindProcessByName(L"Firefox.exe");
+    recorder->StartRecording(processId, true);
 
-    recorder.StartRecording(processId, true);
-    //recorder.StopRecording();
-    /*
-    while (sink)
-    {
-        std::vector<int32_t> audioFrame(100);
-        for (int i = 0; i < 100; i++) {
-            audioFrame[i] = i; 
-        }
-        
-        sink->Success(flutter::EncodableValue(audioFrame));
-    }
-    */
     return nullptr;
 }
 
-
 std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnCancelInternal(const flutter::EncodableValue *arguments)
 {
-    _registrar->UnregisterTopLevelWindowProcDelegate(-1);
-    sink.reset();
+    recorder->StopRecording();
+    recorder.release();
     return nullptr;
 }
 
@@ -91,15 +143,6 @@ VoitaAudioPlugin::VoitaAudioPlugin(flutter::PluginRegistrarWindows *registrar)
 {
   auto plugin = std::make_unique<VoitaAudioPlugin>();
 
-  auto channel = 
-  std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(registrar->messenger(), "voita_audio",
-          &flutter::StandardMethodCodec::GetInstance());
-
-  channel->SetMethodCallHandler(
-      [plugin_pointer = plugin.get()](const auto &call, auto result) {
-        plugin_pointer->HandleMethodCall(call, std::move(result));
-      });
-
   event_channel_ = std::make_unique<FlEventChannel>(
     registrar->messenger(), "audio_streaming",
     &flutter::StandardMethodCodec::GetInstance()
@@ -107,30 +150,8 @@ VoitaAudioPlugin::VoitaAudioPlugin(flutter::PluginRegistrarWindows *registrar)
 
   event_channel_->SetStreamHandler(
       std::make_unique<AudioRecorderStreamHandler>(registrar));
-
 }
 
 VoitaAudioPlugin::~VoitaAudioPlugin() {}
-
-void VoitaAudioPlugin::HandleMethodCall(
-    const flutter::MethodCall<flutter::EncodableValue> &method_call,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  if (method_call.method_name().compare("getPlatformVersion") == 0) {
-    std::ostringstream version_stream;
-    version_stream << "Windows fuck ";
-    if (IsWindows10OrGreater()) {
-      version_stream << "10+";
-    } else if (IsWindows8OrGreater()) {
-      version_stream << "8";
-    } else if (IsWindows7OrGreater()) {
-      version_stream << "7";
-    }
-    result->Success(flutter::EncodableValue(version_stream.str()));
-  }
-  else {
-    std::cout << "Here?" << std::endl;
-    result->NotImplemented();
-  }
-}
 
 }  // namespace voita_audio

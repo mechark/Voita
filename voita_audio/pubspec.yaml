@@ -1,7 +1,7 @@
 name: voita_audio
 description: "A new Flutter plugin project."
 version: 0.0.1
-homepage:
+homepage: "voita.org"
 
 environment:
   sdk: '>=3.4.1 <4.0.0'

@@ -1,11 +1,10 @@
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:voita_audio/voita_audio.dart';
-import 'package:voita_audio/audio_stream_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,46 +18,38 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  final String _platformVersion = 'Unknown';
   final _voitaAudioPlugin = VoitaAudio();
-  final _audioStream = AudioStreamHandler();
+  late Stream<Int32List> audioStream;
+  late StreamSubscription audioStreamSubscribition;
+  bool isStreaming = false;
+  int frameSample = 0;
  
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+  }
 
-    while(true) {
-      getFrames();
-    }
+  void cancelRecording() async {
+    await audioStreamSubscribition.cancel();
+  }
+
+  void onData(Int32List frame) {
+    setState(() {
+      frameSample = frame[0];
+    });
+    print(frame[0]);
   }
 
   void getFrames() async {
-    var data = await _audioStream.audioStream.first;
-    bool empty = data.isEmpty;
-    print(data);
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _voitaAudioPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+    if (isStreaming) {
+      isStreaming = false;
+      cancelRecording();
+      return;
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    isStreaming = true;
+    audioStream = _voitaAudioPlugin.getAudioStream();
+    audioStreamSubscribition = audioStream.listen(onData);
   }
 
   @override
@@ -69,9 +60,16 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(children: [
+            Text('Running on: $_platformVersion\n'),
+            Text("UI is not dead! $frameSample"),
+            TextButton(
+              onPressed: getFrames,
+              child: const Text("Press"),
+            )
+          ]
         ),
       ),
-    );
+    ));
   }
 }

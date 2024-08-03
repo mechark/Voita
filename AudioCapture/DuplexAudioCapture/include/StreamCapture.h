@@ -10,7 +10,7 @@ class StreamCapture {
 	public:
 		__declspec(dllexport) StreamCapture(circular_buffer<int16_t>* iBuffer, std::atomic<bool> * lock);
 		__declspec(dllexport) StreamCapture() = default;
-		__declspec(dllexport) HRESULT StartCaptureAsync(LPCWSTR file = L"");
+		__declspec(dllexport) HRESULT StartCaptureAsync(LPCWSTR file = L"input.wav");
 		__declspec(dllexport) HRESULT FinishCapture();
 		__declspec(dllexport) HRESULT ActivateAudioClient();
 		__declspec(dllexport) void Init(circular_buffer<int16_t>* iBuffer, std::atomic<bool>* lock);

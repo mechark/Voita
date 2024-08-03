@@ -6,7 +6,7 @@
 #include <algorithm>
 
 FullDuplexAudioRecorder::FullDuplexAudioRecorder()
-	: iBuffer(BUFF_SIZE), oBuffer(BUFF_SIZE)
+	: iBuffer(BUFF_SIZE), oBuffer(BUFF_SIZE), mixedBuffer(BUFF_SIZE)
 {
 	pStreamFormat.wFormatTag = WAVE_FORMAT_PCM;
 	pStreamFormat.nChannels = 1;
@@ -38,20 +38,19 @@ void FullDuplexAudioRecorder::mixing()
 	{
 		if (!lock_capture && !lock_loopback)
 		{
-			std::vector<int32_t> mixedFrame = streamMixer.Impose(&iBuffer, &oBuffer);
-
+			std::vector<int32_t> buff = streamMixer.Impose(&iBuffer, &oBuffer);
 			/*
-			DWORD cbBytesToCapture = mixedFrame.size() * pStreamFormat.nBlockAlign;
+			DWORD cbBytesToCapture = buff.size() * pStreamFormat.nBlockAlign;
 			DWORD dwBytesWritten = 0;
 			WriteFile(
 				audioFile.m_hFile.get(),
-				mixedFrame.data(),
+				buff.data(),
 				cbBytesToCapture,
 				&dwBytesWritten,
 				NULL);
-
-			audioFile.m_cbDataSize += cbBytesToCapture;*/
-
+			
+			audioFile.m_cbDataSize += cbBytesToCapture;
+			*/
 			lock_capture.store(true);
 			lock_loopback.store(true);
 		}

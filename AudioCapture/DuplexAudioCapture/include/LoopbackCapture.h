@@ -26,7 +26,7 @@ public:
     __declspec(dllexport) CLoopbackCapture() = default;
     __declspec(dllexport) ~CLoopbackCapture();
 
-    __declspec(dllexport) HRESULT StartCaptureAsync(DWORD processId, bool includeProcessTree, PCWSTR outputFileName = L"");
+    __declspec(dllexport) HRESULT StartCaptureAsync(DWORD processId, bool includeProcessTree, PCWSTR outputFileName = L"output.wav");
     __declspec(dllexport) HRESULT StopCaptureAsync();
 
     METHODASYNCCALLBACK(CLoopbackCapture, StartCapture, OnStartCapture);

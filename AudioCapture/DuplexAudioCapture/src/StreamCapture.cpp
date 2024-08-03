@@ -106,11 +106,11 @@ HRESULT StreamCapture::OnSampleReady() {
 			cbBytesToCapture,
 			&dwBytesWritten,
 			NULL));
-
+			*/
 		RETURN_IF_FAILED(pCaptureClient->ReleaseBuffer(numFramesAvailable));
 
 
-		audioFile.m_cbDataSize += cbBytesToCapture;*/
+		//audioFile.m_cbDataSize += cbBytesToCapture;
 
 		RETURN_IF_FAILED(pCaptureClient->GetNextPacketSize(&numFramesInNextPacket));
 	}
@@ -130,11 +130,11 @@ HRESULT StreamCapture::OnStartCapture() {
 
 
 HRESULT StreamCapture::StartCaptureAsync(LPCWSTR file)
-{
-	//audioFile.CreateWAVFile(*pStreamFormat, file);
-	
-	m_captureThread = std::thread([this]() {
+{	
+	m_captureThread = std::thread([file, this]() {
 		HRESULT hr = ActivateAudioClient();
+
+		//audioFile.CreateWAVFile(*pStreamFormat, file);
 		if (hr == BUSY_DEVICE_ERROR)
 		{
 			throw std::exception("Failed to initialize audio client! The device is busy!", hr);
