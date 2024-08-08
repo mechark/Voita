@@ -55,43 +55,26 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
 flutter_wrapper_plugin 
 )
 
-# Additional includes
-target_include_directories(${PLUGIN_NAME} PRIVATE "C:\\flutter\\bin\\cache\\artifacts\\engine\\windows-x64")
-target_include_directories(${PLUGIN_NAME} PRIVATE "C:\\Voita\\voita_audio\\windows")
-target_include_directories(${PLUGIN_NAME} PRIVATE "C:\\Voita\\voita_audio\\windows\\include\\voita_audio")
-target_include_directories(${PLUGIN_NAME} PRIVATE "C:\\flutter\\bin\\cache\\artifacts\\engine\\windows-x64\\cpp_client_wrapper\\include")
-target_include_directories(${PLUGIN_NAME} PRIVATE "C:\\Voita\\AudioCapture\\DuplexAudioCapture\\include")
-target_include_directories(${PLUGIN_NAME} PRIVATE "C:\\flutter\\bin\\cache\\artifacts\\engine\\windows-x64" )
+# All includes for DuplexAudioCapture
+set (FLUTTER_BIN "C:/flutter/bin")
 
-# flutter_windows.dll.lib
-# flutter_wrapper_plugin.lib
-# kernel32.lib
-# user32.lib
-# gdi32.lib
-# winspool.lib
-# shell32.lib
-# ole32.lib
-# oleaut32.lib
-# uuid.lib
-# comdlg32.lib
-# advapi32.lib
-# mmdevapi.lib
-# Mfplat.lib
-# Mf.lib
-# Mfreadwrite.lib
-# Mfuuid.lib
-# DuplexAudioCapture.lib
+target_include_directories(${PLUGIN_NAME} PRIVATE "${FLUTTER_BIN}/cache/artifacts/engine/windows-x64")
+target_include_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/voita_audio")
+target_include_directories(${PLUGIN_NAME} PRIVATE "${FLUTTER_BIN}/cache/artifacts/engine/windows-x64/cpp_client_wrapper/include")
+target_include_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../../AudioCapture/DuplexAudioCapture/include")
+target_include_directories(${PLUGIN_NAME} PRIVATE "${FLUTTER_BIN}/cache/artifacts/engine/windows-x64" )
 
-include_directories("C:\\Voita\\AudioCapture\\DuplexAudioCapture\\include")
-target_link_directories(${PLUGIN_NAME} PRIVATE "C:\\flutter\\bin\\cache\\artifacts\\engine\\windows-x64")
-target_link_directories(${PLUGIN_NAME} PRIVATE "C:\\Voita\\voita_audio\\example\\build\\windows\\x64\\flutter\\Debug")
-target_link_directories(${PLUGIN_NAME} PRIVATE "C:\\Voita\\AudioCapture\\DuplexAudioCapture\\x64\\Debug")
-target_link_directories(${PLUGIN_NAME} PRIVATE "C:\\Voita\\voita_audio\\windows\\lib")
+
+target_link_directories(${PLUGIN_NAME} PRIVATE "${FLUTTER_BIN}/cache/artifacts/engine/windows-x64")
+target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../example/build/windows/x64/flutter/Debug")
+target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../../AudioCapture/DuplexAudioCapture/x64/Debug")
+target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 
 target_link_libraries(${PLUGIN_NAME} PRIVATE DuplexAudioCapture)
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter_windows)
 target_link_libraries(${PLUGIN_NAME} PRIVATE mmdevapi Mfplat Mf Mfreadwrite Mfuuid)
-#target_link_libraries(${PLUGIN_NAME} PRIVATE flutter_wrapper_plugin)
+
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.

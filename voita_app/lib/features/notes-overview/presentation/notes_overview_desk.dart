@@ -10,7 +10,7 @@ import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/notes-overview/presentation/note_card.dart';
 import 'package:voita_app/features/search/presentation/voita_search_bar.dart';
 import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
-import 'package:voita_audio/voita_audio.dart';
+//import 'package:voita_audio/voita_audio.dart';
 
 class NotesOverviewDesk extends StatefulWidget {
   final List<Note> notes;
@@ -27,7 +27,7 @@ class NotesOverviewDesk extends StatefulWidget {
 class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
   late final OverlayEntry overlayEntry;
   late final Overlay overlay;
-  final VoitaAudio _recorder = VoitaAudio();
+  //final VoitaAudio _recorder = VoitaAudio();
   bool fakeSearchEnabled = true;
 
   void _updateNote(Note updatedNote) {
@@ -269,7 +269,7 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                             backgroundColor: AppColor.purplishBlue,
                             hoverColor: AppColor.darkPurple,
                             onPressed: () {
-                              _recorder.getAudioStream().listen(onData);
+                              //_recorder.getAudioStream().listen(onData);
                             },
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,

@@ -12,7 +12,7 @@ import 'package:voita_app/features/recording/services/note_creator_service.dart'
 import 'package:voita_app/features/recording/services/recorder_service.dart';
 import 'package:voita_app/utils/data/note_repository_impl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:voita_audio/voita_audio.dart';
+//import 'package:voita_audio/voita_audio.dart';
 
 part 'recording_event.dart';
 part 'recording_state.dart';
@@ -96,8 +96,8 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
           speechPadMs: 100);
     }
     else if (Platform.isWindows) {
-      VoitaAudio recorder = VoitaAudio();
-      recorder.getAudioStream().listen(onData);
+      // VoitaAudio recorder = VoitaAudio();
+      // recorder.getAudioStream().listen(onData);
     }
 
     _recorder.addListener(_addUtterance);

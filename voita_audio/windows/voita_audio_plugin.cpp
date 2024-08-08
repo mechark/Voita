@@ -48,7 +48,7 @@ private:
     static const UINT WM_AUDIO_FRAME = WM_USER + 1;
 
     LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    HWND CreateMessageWindow(HINSTANCE hInstance);
+    //HWND CreateMessageWindow(HINSTANCE hInstance);
 };
 
 LRESULT CALLBACK AudioRecorderStreamHandler::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -67,60 +67,61 @@ LRESULT CALLBACK AudioRecorderStreamHandler::WindowProc(HWND hwnd, UINT uMsg, WP
 
 AudioRecorderStreamHandler::AudioRecorderStreamHandler(flutter::PluginRegistrarWindows *registrar)
     : _registrar(registrar) 
-{
-    
-    
+{   
 }
-
+/*
 HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
     const wchar_t CLASS_NAME[] = L"VoitaAudioMessageWindow";
 
-    WNDCLASS wc = {};
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = CLASS_NAME;
+    // WNDCLASS wc = {};
+    // wc.lpfnWndProc = WindowProc;
+    // wc.hInstance = hInstance;
+    // wc.lpszClassName = CLASS_NAME;
 
-    RegisterClass(&wc);
+    // RegisterClass(&wc);
 
-    return CreateWindowEx(
-        0,                              // Optional window styles
-        CLASS_NAME,                     // Window class
-        L"VoitaAudioMessageWindow",     // Window text
-        WS_OVERLAPPEDWINDOW,            // Window style
+    // return CreateWindowEx(
+    //     0,                              // Optional window styles
+    //     CLASS_NAME,                     // Window class
+    //     L"VoitaAudioMessageWindow",     // Window text
+    //     WS_OVERLAPPEDWINDOW,            // Window style
 
-        // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+    //     // Size and position
+    //     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 
-        HWND_MESSAGE,                   // Parent window    
-        NULL,                           // Menu
-        hInstance,                      // Instance handle
-        NULL                            // Additional application data
-    );
+    //     HWND_MESSAGE,                   // Parent window    
+    //     NULL,                           // Menu
+    //     hInstance,                      // Instance handle
+    //     NULL                            // Additional application data
+    // );
+
+    HWND h = 0;
+    return h;
 }
-
+*/
 AudioRecorderStreamHandler::~AudioRecorderStreamHandler() {
-  _registrar->UnregisterTopLevelWindowProcDelegate(window_proc_id);
+ _registrar->UnregisterTopLevelWindowProcDelegate(window_proc_id);
 }
 
 std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnListenInternal(
     const flutter::EncodableValue *arguments,
     std::unique_ptr<FlEventSink> &&events) 
 {
-    if (window_proc_id == -1) {
-        window_proc_id = _registrar->RegisterTopLevelWindowProcDelegate(
-            [this](HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-                message_window = hWnd;
-                return WindowProc(hWnd, message, wParam, lParam);
-            }
-        );
-    }
+     if (window_proc_id == -1) {
+         window_proc_id = _registrar->RegisterTopLevelWindowProcDelegate(
+             [this](HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+                 message_window = hWnd;
+                 return WindowProc(hWnd, message, wParam, lParam);
+             }
+         );
+     }
 
-    sink = std::move(events);
-    ProcessManager processManager;
-    recorder = std::make_unique<AudioRecorder>(message_window);
+     sink = std::move(events);
+     ProcessManager processManager;
+     recorder = std::make_unique<AudioRecorder>(message_window);
 
-    DWORD processId = processManager.FindProcessByName(L"Firefox.exe");
-    recorder->StartRecording(processId, true);
+     DWORD processId = processManager.FindProcessByName(L"Firefox.exe");
+     recorder->StartRecording(processId, true);
 
     return nullptr;
 }
