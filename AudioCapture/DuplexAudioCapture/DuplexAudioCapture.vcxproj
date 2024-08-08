@@ -128,7 +128,8 @@
       <AdditionalDependencies>mmdevapi.lib;Mfplat.lib;Mf.lib;Mfreadwrite.lib;Mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(OutDir)" "$(SolutionDir)\$(PlatformName)\$(ConfigurationName)\" /s /i /y</Command>
+      <Command>xcopy "$(OutDir)" "$(SolutionDir)\$(PlatformName)\$(ConfigurationName)\" /s /i /y
+xcopy "$(OutDir)DuplexAudioCapture.dll" "$(ProjectDir)..\..\voita_app\build\windows\x64\runner\$(Configuration)\" /i /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,7 +157,8 @@ Mfplat.lib
 ;Mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(OutDir)" "$(SolutionDir)\$(PlatformName)\$(ConfigurationName)\" /s /i /y</Command>
+      <Command>xcopy "$(OutDir)" "$(SolutionDir)\$(PlatformName)\$(ConfigurationName)\" /s /i /y
+xcopy "$(OutDir)DuplexAudioCapture.dll" "$(ProjectDir)..\..\voita_app\build\windows\x64\runner\$(Configuration)\" /i /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
