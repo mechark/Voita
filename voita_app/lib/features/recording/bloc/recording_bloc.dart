@@ -20,8 +20,7 @@ part 'recording_state.dart';
 class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
   static const int _frameSize = 1536;
   static const int _sampleRate = 16000;
-  final RecorderService _recorder =
-      RecorderService(frameLength: _frameSize, sampleRate: _sampleRate);
+  final RecorderService _recorder = RecorderService(frameLength: _frameSize, sampleRate: _sampleRate);
   final vad = FlutterSileroVad();
   final _stopWatch = Stopwatch();
   final _modelService = RecordingRepositoryImpl();

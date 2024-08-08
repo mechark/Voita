@@ -1,6 +1,9 @@
+import 'dart:js_interop';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:voita_app/features/recording/bloc/recording_bloc.dart';
 import 'package:voita_app/routing/router.dart';
 import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 import 'package:voita_app/utils/services/data/supabase_client.dart';
@@ -29,6 +32,9 @@ class _VoitaApp extends State<VoitaApp> {
           BlocProvider<NotesBloc>(
               lazy: false,
               create: (context) => NotesBloc()..add(const LoadNotes())),
+          BlocProvider<RecordingBloc>(
+            create: (context) => RecordingBloc(),
+          )
         ],
         child: MaterialApp.router(
           routerConfig: VoitaRouter.router,

@@ -47,19 +47,21 @@ private:
     int window_proc_id = -1;
     static const UINT WM_AUDIO_FRAME = WM_USER + 1;
 
-    LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    //HWND CreateMessageWindow(HINSTANCE hInstance);
+    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    HWND CreateMessageWindow(HINSTANCE hInstance);
 };
 
+// static
 LRESULT CALLBACK AudioRecorderStreamHandler::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     if (uMsg == WM_AUDIO_FRAME) {
-        if (lParam) {
-            int32_t* pFrame = reinterpret_cast<int32_t*>(lParam);
-            int size = (int) wParam;
+        AudioRecorderStreamHandler * pStreamHandler = reinterpret_cast<AudioRecorderStreamHandler*>(GetWindowLongPtrW(hwnd, 0));
 
-            std::vector<int32_t> frame(pFrame, pFrame + size);
-            sink->Success(flutter::EncodableValue(frame));
-        }
+        int32_t* pFrame = reinterpret_cast<int32_t*>(lParam);
+        int size = (int) wParam;
+
+        std::vector<int32_t> frame(pFrame, pFrame + size);
+        pStreamHandler->sink->Success(flutter::EncodableValue(frame));
+
         return 0;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -68,54 +70,51 @@ LRESULT CALLBACK AudioRecorderStreamHandler::WindowProc(HWND hwnd, UINT uMsg, WP
 AudioRecorderStreamHandler::AudioRecorderStreamHandler(flutter::PluginRegistrarWindows *registrar)
     : _registrar(registrar) 
 {   
+    HINSTANCE hInstance = GetModuleHandle(NULL);
+    message_window = CreateMessageWindow(hInstance);
+
+    // Pass this to the static WindowProc 
+    SetWindowLongPtrW(message_window, 0, reinterpret_cast<LONG_PTR>(this));
 }
-/*
+
 HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
+    
     const wchar_t CLASS_NAME[] = L"VoitaAudioMessageWindow";
 
-    // WNDCLASS wc = {};
-    // wc.lpfnWndProc = WindowProc;
-    // wc.hInstance = hInstance;
-    // wc.lpszClassName = CLASS_NAME;
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = CLASS_NAME;
+    wc.cbWndExtra  = sizeof(AudioRecorderStreamHandler*);
 
-    // RegisterClass(&wc);
+    RegisterClass(&wc);
 
-    // return CreateWindowEx(
-    //     0,                              // Optional window styles
-    //     CLASS_NAME,                     // Window class
-    //     L"VoitaAudioMessageWindow",     // Window text
-    //     WS_OVERLAPPEDWINDOW,            // Window style
+    return CreateWindowEx(
+        0,                              
+        CLASS_NAME,                     
+        L"VoitaAudioMessageWindow",     
+        WS_OVERLAPPEDWINDOW,            
+        // Size and position
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        HWND_MESSAGE,                   // Parent window    
+        NULL,                           // Menu
+        hInstance,                      // Instance handle
+        NULL                            // Additional application data
+    );
 
-    //     // Size and position
-    //     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-    //     HWND_MESSAGE,                   // Parent window    
-    //     NULL,                           // Menu
-    //     hInstance,                      // Instance handle
-    //     NULL                            // Additional application data
-    // );
-
-    HWND h = 0;
-    return h;
+   return message_window;
 }
-*/
+
 AudioRecorderStreamHandler::~AudioRecorderStreamHandler() {
- _registrar->UnregisterTopLevelWindowProcDelegate(window_proc_id);
+    if (message_window != NULL) {
+        DestroyWindow(message_window);
+    }
 }
 
 std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnListenInternal(
     const flutter::EncodableValue *arguments,
     std::unique_ptr<FlEventSink> &&events) 
 {
-     if (window_proc_id == -1) {
-         window_proc_id = _registrar->RegisterTopLevelWindowProcDelegate(
-             [this](HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-                 message_window = hWnd;
-                 return WindowProc(hWnd, message, wParam, lParam);
-             }
-         );
-     }
-
      sink = std::move(events);
      ProcessManager processManager;
      recorder = std::make_unique<AudioRecorder>(message_window);
