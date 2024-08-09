@@ -1,9 +1,12 @@
 # Voita
 Voita – speech-to-text notes for ukrainian language
 
+# Atentancion
+**!!!COMPILE AudioCapture first**
+
 # Voita structure
 
-## Features folder structure
+## Features folder structure for voita_app
 ```
 ‣ features
     Main folder that follows the Feature-first architecture pattern
