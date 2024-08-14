@@ -79,7 +79,7 @@ AudioRecorderStreamHandler::AudioRecorderStreamHandler(flutter::PluginRegistrarW
 
 HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
     
-    const wchar_t CLASS_NAME[] = L"VoitaAudioMessageWindow";
+    LPCSTR CLASS_NAME = "VoitaAudioMessageWindow";
 
     WNDCLASS wc = {};
     wc.lpfnWndProc = WindowProc;
@@ -92,7 +92,7 @@ HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
     return CreateWindowEx(
         0,                              
         CLASS_NAME,                     
-        L"VoitaAudioMessageWindow",     
+        "VoitaAudioMessageWindow",     
         WS_OVERLAPPEDWINDOW,            
         // Size and position
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
