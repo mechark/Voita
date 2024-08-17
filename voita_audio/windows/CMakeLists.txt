@@ -67,8 +67,9 @@ target_include_directories(${PLUGIN_NAME} PRIVATE "${FLUTTER_BIN}/cache/artifact
 
 
 target_link_directories(${PLUGIN_NAME} PRIVATE "${FLUTTER_BIN}/cache/artifacts/engine/windows-x64")
-target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../../voita_app/build/windows/x64/flutter/Debug")
-target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../../AudioCapture/DuplexAudioCapture/x64/Debug")
+target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../../voita_app/build/windows/x64/flutter/${CMAKE_BUILD_TYPE}")
+target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../../voita_app/windows/flutter/ephemeral")
+target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/../../AudioCapture/DuplexAudioCapture/x64/${CMAKE_BUILD_TYPE}")
 target_link_directories(${PLUGIN_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 
 target_link_libraries(${PLUGIN_NAME} PRIVATE DuplexAudioCapture)

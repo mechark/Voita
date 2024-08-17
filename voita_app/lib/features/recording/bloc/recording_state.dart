@@ -7,8 +7,8 @@ sealed class RecordingState extends Equatable {
   List<Object> get props => [];
 }
 
-final class RecordingStarted extends RecordingState {
-  const RecordingStarted();
+final class RecordingInitial extends RecordingState {
+  const RecordingInitial();
 
   @override
   List<Object> get props => [];

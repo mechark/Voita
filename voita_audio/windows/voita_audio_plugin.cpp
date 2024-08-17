@@ -56,11 +56,13 @@ LRESULT CALLBACK AudioRecorderStreamHandler::WindowProc(HWND hwnd, UINT uMsg, WP
     if (uMsg == WM_AUDIO_FRAME) {
         AudioRecorderStreamHandler * pStreamHandler = reinterpret_cast<AudioRecorderStreamHandler*>(GetWindowLongPtrW(hwnd, 0));
 
-        int32_t* pFrame = reinterpret_cast<int32_t*>(lParam);
-        int size = (int) wParam;
+        if (pStreamHandler->sink) {
+            int32_t* pFrame = reinterpret_cast<int32_t*>(lParam);
+            int size = (int)wParam;
 
-        std::vector<int32_t> frame(pFrame, pFrame + size);
-        pStreamHandler->sink->Success(flutter::EncodableValue(frame));
+            std::vector<int32_t> frame(pFrame, pFrame + size);
+            pStreamHandler->sink->Success(flutter::EncodableValue(frame));
+        }
 
         return 0;
     }
@@ -78,21 +80,20 @@ AudioRecorderStreamHandler::AudioRecorderStreamHandler(flutter::PluginRegistrarW
 }
 
 HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
-    
     LPCSTR CLASS_NAME = "VoitaAudioMessageWindow";
 
-    WNDCLASS wc = {};
+    WNDCLASSA wc = {};
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.cbWndExtra  = sizeof(AudioRecorderStreamHandler*);
 
-    RegisterClass(&wc);
+    RegisterClassA(&wc);
 
-    return CreateWindowEx(
+    return CreateWindowExA(
         0,                              
         CLASS_NAME,                     
-        "VoitaAudioMessageWindow",     
+        CLASS_NAME,     
         WS_OVERLAPPEDWINDOW,            
         // Size and position
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -106,9 +107,7 @@ HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
 }
 
 AudioRecorderStreamHandler::~AudioRecorderStreamHandler() {
-    if (message_window != NULL) {
-        DestroyWindow(message_window);
-    }
+    sink.release();
 }
 
 std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnListenInternal(
@@ -127,6 +126,9 @@ std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnListenIntern
 
 std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnCancelInternal(const flutter::EncodableValue *arguments)
 {
+    // if (message_window != NULL) {
+    //     DestroyWindow(message_window);
+    // }
     recorder->StopRecording();
     recorder.release();
     return nullptr;

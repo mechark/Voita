@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:voita_app/constants/app_colors.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/notes-overview/presentation/note_card.dart';
+import 'package:voita_app/features/recording/bloc/recording_bloc.dart';
 import 'package:voita_app/features/search/presentation/voita_search_bar.dart';
 import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 import 'package:voita_audio/voita_audio.dart';
@@ -27,7 +29,6 @@ class NotesOverviewDesk extends StatefulWidget {
 class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
   late final OverlayEntry overlayEntry;
   late final Overlay overlay;
-  final VoitaAudio _recorder = VoitaAudio();
   bool fakeSearchEnabled = true;
 
   void _updateNote(Note updatedNote) {
@@ -134,201 +135,215 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-        value: BlocProvider.of<NotesBloc>(context),
-        child: MaterialApp(
+    NotesBloc notesBloc = BlocProvider.of<NotesBloc>(context);
+    RecordingBloc recordingBloc = BlocProvider.of<RecordingBloc>(context);
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(
+          value: notesBloc
+        ),
+        BlocProvider.value(
+          value: recordingBloc
+        ),
+      ], 
+      child: MaterialApp(
             theme: theme,
             home: Container(
                 color: Colors.black.withOpacity(0),
-                child: 
-              Scaffold(body:
-                BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
-              return Row(children: <Widget>[
-                NavigationRail(
-                  selectedIndex: widget.navigationShell.currentIndex,
-                  elevation: 3,
-                  groupAlignment: groupAlignment,
-                  extended: true,
-                  onDestinationSelected: (int index) {
-                    widget.navigationShell.goBranch(index,
-                        initialLocation:
-                            index == widget.navigationShell.currentIndex);
-                  },
-                  labelType: labelType,
-                  indicatorColor: AppColor.purplishBlueLight,
-                  leading: Column(
-                    children: [
-                      SizedBox(
-                        width: 250,
-                        child: Column(
-                          // crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                                    "Voita",
-                                    style: TextStyle(
-                                      fontFamily: 'Roboto',
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColor.spaceGray
-                                    ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    IconButton(
-                                        onPressed: () => {},
-                                        icon: const CircleAvatar(
-                                          radius: 15,
-                                          backgroundColor: AppColor.spaceGray,
-                                          backgroundImage:
-                                              AssetImage("assets/base.png"),
-                                        )),
-                                    const Text("Павло",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14,
-                                            fontFamily: 'Lato')),
-                                  ],
-                                ),
-                                IconButton(
-                                    icon: const Icon(Icons.dark_mode),
-                                    onPressed: () => setState(() {
-                                          theme = theme == ThemeData.dark()
-                                              ? ThemeData.light()
-                                              : ThemeData.dark();
-                                        })),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            TapRegion(
-                              onTapInside: (tap) => showSearch(),
-                              onTapOutside: (tap) => hideSearch(),
-                              child: Container( 
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: const BorderRadius.all(Radius.circular(4)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColor.spaceGray.withOpacity(0.1),
-                                    spreadRadius: 0.5,
-                                    blurRadius: 1,
-                                    offset: const Offset(0, 2)
-                                  )
-                                ]
+                child: Scaffold(body: Builder(builder: (context) {
+                
+                final notesState     = context.watch<NotesBloc>().state;
+                final recordingState = context.watch<RecordingBloc>().state;
+
+                return Row(children: <Widget>[
+                  NavigationRail(
+                    selectedIndex: widget.navigationShell.currentIndex,
+                    elevation: 3,
+                    groupAlignment: groupAlignment,
+                    extended: true,
+                    onDestinationSelected: (int index) {
+                      widget.navigationShell.goBranch(index,
+                          initialLocation:
+                              index == widget.navigationShell.currentIndex);
+                    },
+                    labelType: labelType,
+                    indicatorColor: AppColor.purplishBlueLight,
+                    leading: Column(
+                      children: [
+                        SizedBox(
+                          width: 250,
+                          child: Column(
+                            // crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                      "Voita",
+                                      style: TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColor.spaceGray
+                                      ),
                               ),
-                              height: 40,
-                              width: 220,
-                              child: TextField(
-                              cursorColor: const Color.fromARGB(255, 107, 107, 107),
-                              textAlignVertical: TextAlignVertical.center,
-                              enabled: fakeSearchEnabled,
-                              onTap: () {
-                                
-                                // showSearch();
-                              },
-                              // onTapOutside: () => hideSearch(),
-                              // style: TextStyle(
-                              //   fontFamily: 'Lato',
-                              //   fontSize: 20,
-                              // ),
-                               decoration: const InputDecoration(
-                                focusColor: AppColor.spaceGray,
-                                isDense: true,
-                                // labelText: 'Пошук',
-                                border: InputBorder.none,
-                                // border: OutlineInputBorder(
-                                //   borderSide: BorderSide(
-                                //     width: 0.1,
-                                //     color: Color.fromARGB(255, 255, 5, 5)
-                                //   ),
-                                // ),
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  size: 20
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                          onPressed: () => {},
+                                          icon: const CircleAvatar(
+                                            radius: 15,
+                                            backgroundColor: AppColor.spaceGray,
+                                            backgroundImage:
+                                                AssetImage("assets/base.png"),
+                                          )),
+                                      const Text("Павло",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 14,
+                                              fontFamily: 'Lato')),
+                                    ],
+                                  ),
+                                  IconButton(
+                                      icon: const Icon(Icons.dark_mode),
+                                      onPressed: () => setState(() {
+                                            theme = theme == ThemeData.dark()
+                                                ? ThemeData.light()
+                                                : ThemeData.dark();
+                                          })),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              TapRegion(
+                                onTapInside: (tap) => showSearch(),
+                                onTapOutside: (tap) => hideSearch(),
+                                child: Container( 
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColor.spaceGray.withOpacity(0.1),
+                                      spreadRadius: 0.5,
+                                      blurRadius: 1,
+                                      offset: const Offset(0, 2)
+                                    )
+                                  ]
                                 ),
-                              )
-                            ))),
-                            const SizedBox(height: 20),
-                          ],
+                                height: 40,
+                                width: 220,
+                                child: TextField(
+                                cursorColor: const Color.fromARGB(255, 107, 107, 107),
+                                textAlignVertical: TextAlignVertical.center,
+                                enabled: fakeSearchEnabled,
+                                onTap: () {
+                                  
+                                  // showSearch();
+                                },
+                                // onTapOutside: () => hideSearch(),
+                                // style: TextStyle(
+                                //   fontFamily: 'Lato',
+                                //   fontSize: 20,
+                                // ),
+                                decoration: const InputDecoration(
+                                  focusColor: AppColor.spaceGray,
+                                  isDense: true,
+                                  // labelText: 'Пошук',
+                                  border: InputBorder.none,
+                                  // border: OutlineInputBorder(
+                                  //   borderSide: BorderSide(
+                                  //     width: 0.1,
+                                  //     color: Color.fromARGB(255, 255, 5, 5)
+                                  //   ),
+                                  // ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    size: 20
+                                  ),
+                                )
+                              ))),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      children: [
+                        const SizedBox(height: 150),
+                        SizedBox(
+                            width: 110,
+                            height: 40,
+                            child: FloatingActionButton(
+                              backgroundColor: AppColor.purplishBlue,
+                              hoverColor: AppColor.darkPurple,
+                              onPressed: () {
+                                if (recordingState is RecordingInProgress) {
+                                  recordingBloc.add(const StopRecording());
+                                } 
+                                else{
+                                  recordingBloc.add(const OngoingRecording(text: ""));
+                                }
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Запис',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
+                                        fontFamily: 'Lato'),
+                                  ),
+                                  Icon(
+                                    Icons.mic,
+                                    size: 25,
+                                  ),
+                                ],
+                              ),
+                            ))
+                      ],
+                    ),
+                    destinations: const <NavigationRailDestination>[
+                      NavigationRailDestination(
+                        icon: Icon(Icons.home),
+                        label: Text(
+                          'Додому',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              fontFamily: 'Lato'),
+                        ),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.folder_shared),
+                        label: Text(
+                          'Групи',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              fontFamily: 'Lato'),
+                        ),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.description),
+                        label: Text(
+                          'Усі нотатки',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              fontFamily: 'Lato'),
                         ),
                       ),
                     ],
                   ),
-                  trailing: Row(
-                    children: [
-                      const SizedBox(height: 150),
-                      SizedBox(
-                          width: 110,
-                          height: 40,
-                          child: FloatingActionButton(
-                            backgroundColor: AppColor.purplishBlue,
-                            hoverColor: AppColor.darkPurple,
-                            onPressed: () {
-                              _recorder.getAudioStream().listen(onData);
-                            },
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Запис',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 16,
-                                      fontFamily: 'Lato'),
-                                ),
-                                Icon(
-                                  Icons.mic,
-                                  size: 25,
-                                ),
-                              ],
-                            ),
-                          ))
-                    ],
-                  ),
-                  destinations: const <NavigationRailDestination>[
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text(
-                        'Додому',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            fontFamily: 'Lato'),
-                      ),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.folder_shared),
-                      label: Text(
-                        'Групи',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            fontFamily: 'Lato'),
-                      ),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.description),
-                      label: Text(
-                        'Усі нотатки',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            fontFamily: 'Lato'),
-                      ),
-                    ),
-                  ],
-                ),
-                Expanded(child: widget.navigationShell),
-              ]);
-            })))));
-  }
-
-  void onData(Int32List event) {
-    print(event);
-  }
+                  Expanded(child: widget.navigationShell),
+                ]);
+              })))));
+    }
 }

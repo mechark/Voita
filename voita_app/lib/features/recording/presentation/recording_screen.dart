@@ -30,8 +30,7 @@ class _NoteScreenState extends State<RecordingScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          RecordingBloc()..add(const OngoingRecording(text: "")),
+      create: (context) => RecordingBloc()..add(const OngoingRecording(text: "")),
       child: Scaffold(
         appBar: const NoteAppBar(),
         body: BlocBuilder<RecordingBloc, RecordingState>(

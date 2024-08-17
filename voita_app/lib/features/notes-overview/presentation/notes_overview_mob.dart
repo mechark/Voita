@@ -140,10 +140,8 @@ class _NotesOverviewMobState extends State<NotesOverviewMob> {
             ]);
           }),
           extendBody: true,
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          floatingActionButton:
-              BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
             if (state is NotesLoaded) {
               return RecordIcon(
                   color: AppColor.spaceGray, onNoteCreated: _createNote);

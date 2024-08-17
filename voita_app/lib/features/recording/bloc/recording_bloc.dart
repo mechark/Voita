@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -9,39 +10,48 @@ import 'package:flutter_silero_vad/flutter_silero_vad.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/features/recording/data/repository/recording_repository_impl.dart';
 import 'package:voita_app/features/recording/services/note_creator_service.dart';
-import 'package:voita_app/features/recording/services/recorder_service.dart';
+import 'package:voita_app/features/recording/services/recorder_interface.dart';
+import 'package:voita_app/features/recording/services/recorder_service_windows.dart';
+import 'package:voita_app/features/recording/services/voita_recorder.dart';
+import 'package:voita_app/features/recording/services/recorder_service_mobile.dart';
 import 'package:voita_app/utils/data/note_repository_impl.dart';
 import 'package:path_provider/path_provider.dart';
-//import 'package:voita_audio/voita_audio.dart';
 
 part 'recording_event.dart';
 part 'recording_state.dart';
 
 class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
-  static const int _frameSize = 1536;
-  static const int _sampleRate = 16000;
-  final RecorderService _recorder = RecorderService(frameLength: _frameSize, sampleRate: _sampleRate);
+  late Recorder audioProcessor;
   final vad = FlutterSileroVad();
   final _stopWatch = Stopwatch();
   final _modelService = RecordingRepositoryImpl();
   final NoteRepositoryImpl _noteRepo = NoteRepositoryImpl();
-  bool isRecording = true;
+  late StreamSubscription audioStreamSubscribition;
   String _text = "";
 
-  RecordingBloc() : super(const RecordingInProgress(text: "")) {
+  RecordingBloc() : super(const RecordingInitial()) {
     on<OngoingRecording>(_onOngoingRecording);
     on<StopRecording>(_onStopRecording);
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      const int frameSize = 512;
+      const int sampleRate = 16000;
+      audioProcessor = VoitaRecorder(RecorderServiceMobile(frameLength: frameSize, sampleRate: sampleRate)).getRecorder;
+    }
+    else if (Platform.isWindows) {
+      audioProcessor = VoitaRecorder(RecorderServiceWindows()).getRecorder;
+    }
   }
 
   void _addUtterance(List<int> frame) async {
-    bool? recordingInProgress = await _recorder.isRecording;
+    bool? recordingInProgress = await audioProcessor.isRecording;
 
-    if (recordingInProgress! && !isClosed) {
+    if (recordingInProgress!= null && recordingInProgress && !isClosed) {
       // TODO change this bullshit to something more reliable
 
       if (Platform.isAndroid || Platform.isIOS) {
         try {
-          var audioBuffer = Float32List(_frameSize);
+          var audioBuffer = Float32List(512);
           for (int i = 0; i < frame.length; i++) {
             audioBuffer[i] = (frame[i] / 32768.0);
           }
@@ -58,7 +68,12 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
         } catch (e) {
           print(e);
         }
-      } else {
+      }
+      else if (Platform.isWindows) {
+        print(frame);
+        emit(const RecordingInProgress(text: ""));
+      } 
+      else {
         try {
           final value = await _modelService.sendToPipeline(frame);
           _text += value;
@@ -75,12 +90,7 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
     File("$modelPath/silero_vad.onnx").writeAsBytesSync(bytes);
   }
 
-  void onData(Int32List frame) {
-    print(frame);
-  }
-
-  void _onOngoingRecording(
-      OngoingRecording event, Emitter<RecordingState> emit) async {
+  void _onOngoingRecording(OngoingRecording event, Emitter<RecordingState> emit) async {
     if (Platform.isAndroid || Platform.isIOS) {
       final directory = await getApplicationDocumentsDirectory();
       String modelPath = directory.path;
@@ -88,36 +98,27 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
 
       await vad.initialize(
           modelPath: "$modelPath/silero_vad.onnx",
-          sampleRate: _sampleRate,
+          sampleRate: 16000,
           frameSize: 96,
           threshold: 0.7,
           minSilenceDurationMs: 300,
           speechPadMs: 100);
-    }
-    else if (Platform.isWindows) {
-      // VoitaAudio recorder = VoitaAudio();
-      // recorder.getAudioStream().listen(onData);
+
     }
 
-    _recorder.addListener(_addUtterance);
-    await _recorder.startProcessing();
     _stopWatch.start();
+    await audioProcessor.startProcessing();
+    audioProcessor.addListener(_addUtterance);
   }
 
-  void _onStopRecording(
-      StopRecording event, Emitter<RecordingState> emit) async {
-    _recorder.stop();
+  void _onStopRecording(StopRecording event, Emitter<RecordingState> emit) async {
+      audioProcessor.stopProcessing();
 
-    isRecording = false;
-    _recorder.removeListener(_addUtterance);
-    _stopWatch.stop();
-
-    Note note = NoteCreator.constructNote(
-        text: _text,
-        duration: _stopWatch.elapsedMilliseconds.ceil(),
-        audioLocation: "voita.com");
-    _noteRepo.addNote(note);
-
-    emit(RecordingStopped(note: note));
+      Note note = NoteCreator.constructNote(
+      text: _text,
+      duration: _stopWatch.elapsedMilliseconds.ceil(),
+      audioLocation: "voita.com");
+      // Add this _noteRepo.addNote(note); when ASR will be here
+      emit(RecordingStopped(note: note));
   }
 }
