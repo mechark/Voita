@@ -137,7 +137,7 @@ HRESULT CLoopbackCapture::ActivateCompleted(IActivateAudioInterfaceAsyncOperatio
             RETURN_IF_FAILED(m_AudioClient->SetEventHandle(m_SampleReadyEvent.get()));
 
             // Creates the WAV file.
-            RETURN_IF_FAILED(audioFile.CreateWAVFile(m_CaptureFormat, m_outputFileName));
+            //RETURN_IF_FAILED(audioFile.CreateWAVFile(m_CaptureFormat, m_outputFileName));
 
             // Everything is ready.
             m_DeviceState = DeviceState::Initialized;
@@ -254,7 +254,7 @@ HRESULT CLoopbackCapture::FinishCaptureAsync()
 HRESULT CLoopbackCapture::OnFinishCapture(IMFAsyncResult* pResult)
 {
     // FixWAVHeader will set the DeviceStateStopped when all async tasks are complete
-    HRESULT hr = audioFile.FixWAVHeader();
+    //HRESULT hr = audioFile.FixWAVHeader();
     
     m_DeviceState = DeviceState::Stopped;
 
@@ -360,6 +360,7 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
                 FramesAvailable = convertedBytesToCapture / 2;
                 pOBuffer->push(convertedData, FramesAvailable);
 
+                /*
                 DWORD dwBytesWritten = 0;
                 RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
                     audioFile.m_hFile.get(),
@@ -367,7 +368,7 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
                     cbBytesToCapture,
                     &dwBytesWritten,
                     NULL));
-                
+                */
                 SetEvent(*loopbacked_event);
             }
         }
@@ -375,7 +376,7 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
         m_AudioCaptureClient->ReleaseBuffer(FramesAvailable);
 
         // Increase the size of our 'data' chunk.  m_cbDataSize needs to be accurate
-        audioFile.m_cbDataSize += cbBytesToCapture;
+        //audioFile.m_cbDataSize += cbBytesToCapture;
     }
 
     return S_OK;
