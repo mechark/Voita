@@ -3,6 +3,7 @@
 #include <shlobj.h>
 #include <wchar.h>
 #include <iostream>
+#include <vector>
 #include <audioclientactivationparams.h>
 #include "LoopbackCapture.h"
 
@@ -20,6 +21,7 @@ HRESULT CLoopbackCapture::SetDeviceStateErrorIfFailed(HRESULT hr)
 
 HRESULT CLoopbackCapture::InitializeLoopbackCapture()
 {
+    
     // Create events for sample ready or user stop
     RETURN_IF_FAILED(m_SampleReadyEvent.create(wil::EventOptions::None));
 
@@ -38,28 +40,24 @@ HRESULT CLoopbackCapture::InitializeLoopbackCapture()
 
     // Create the capture-stopped event as auto-reset
     RETURN_IF_FAILED(m_hCaptureStopped.create(wil::EventOptions::None));
-
+    
     return S_OK;
 }
 
-CLoopbackCapture::CLoopbackCapture(circular_buffer<int16_t>* buffer, std::atomic<bool>* lock)
+void CLoopbackCapture::Init(circular_buffer<int16_t>* buffer, HANDLE* loopback_event)
 {
     pOBuffer = buffer;
-    lock_loopback = lock;
-}
-
-void CLoopbackCapture::Init(circular_buffer<int16_t>* buffer, std::atomic<bool>* lock)
-{
-    pOBuffer = buffer;
-    lock_loopback = lock;
+    loopbacked_event = loopback_event;
 }
 
 CLoopbackCapture::~CLoopbackCapture()
 {
+    
     if (m_dwQueueID != 0)
     {
         MFUnlockWorkQueue(m_dwQueueID);
     }
+    
 }
 
 HRESULT CLoopbackCapture::ActivateAudioInterface(DWORD processId, bool includeProcessTree)
@@ -95,6 +93,7 @@ HRESULT CLoopbackCapture::ActivateAudioInterface(DWORD processId, bool includePr
 //
 HRESULT CLoopbackCapture::ActivateCompleted(IActivateAudioInterfaceAsyncOperation* operation)
 {
+    
     m_activateResult = SetDeviceStateErrorIfFailed([&]()->HRESULT
         {
             // Check for a successful activation result
@@ -108,11 +107,14 @@ HRESULT CLoopbackCapture::ActivateCompleted(IActivateAudioInterfaceAsyncOperatio
 
             m_CaptureFormat.wFormatTag = WAVE_FORMAT_PCM;
             m_CaptureFormat.nChannels = 1;
-            m_CaptureFormat.nSamplesPerSec = 16000;
+            m_CaptureFormat.nSamplesPerSec = 44100;
             m_CaptureFormat.wBitsPerSample = 16;
             m_CaptureFormat.nBlockAlign = m_CaptureFormat.nChannels * m_CaptureFormat.wBitsPerSample / BITS_PER_BYTE;
             m_CaptureFormat.nAvgBytesPerSec = m_CaptureFormat.nSamplesPerSec * m_CaptureFormat.nBlockAlign;
-            m_CaptureFormat.cbSize = 0;
+
+            // Set audio formats for the Resampler
+            resampler.SetInputAudioFormat(m_CaptureFormat.nSamplesPerSec, m_CaptureFormat.nChannels, m_CaptureFormat.wBitsPerSample);
+            resampler.SetOutputAudioFormat(16000, 1, 16);
 
             // Initialize the AudioClient in Shared Mode with the user specified buffer
             RETURN_IF_FAILED(m_AudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
@@ -135,7 +137,7 @@ HRESULT CLoopbackCapture::ActivateCompleted(IActivateAudioInterfaceAsyncOperatio
             RETURN_IF_FAILED(m_AudioClient->SetEventHandle(m_SampleReadyEvent.get()));
 
             // Creates the WAV file.
-            //RETURN_IF_FAILED(audioFile.CreateWAVFile(m_CaptureFormat, m_outputFileName));
+            RETURN_IF_FAILED(audioFile.CreateWAVFile(m_CaptureFormat, m_outputFileName));
 
             // Everything is ready.
             m_DeviceState = DeviceState::Initialized;
@@ -145,11 +147,13 @@ HRESULT CLoopbackCapture::ActivateCompleted(IActivateAudioInterfaceAsyncOperatio
 
     // Let ActivateAudioInterface know that m_activateResult has the result of the activation attempt.
     m_hActivateCompleted.SetEvent();
+    
     return S_OK;
 }
 
 HRESULT CLoopbackCapture::StartCaptureAsync(DWORD processId, bool includeProcessTree, PCWSTR outputFileName)
 {
+    
     m_outputFileName = outputFileName;
     auto resetOutputFileName = wil::scope_exit([&] { m_outputFileName = nullptr; });
 
@@ -162,7 +166,7 @@ HRESULT CLoopbackCapture::StartCaptureAsync(DWORD processId, bool includeProcess
         m_DeviceState = DeviceState::Starting;
         return MFPutWorkItem2(MFASYNC_CALLBACK_QUEUE_MULTITHREADED, 0, &m_xStartCapture, nullptr);
     }
-
+    
     return S_OK;
 }
 
@@ -175,12 +179,13 @@ HRESULT CLoopbackCapture::OnStartCapture(IMFAsyncResult* pResult)
 {
     return SetDeviceStateErrorIfFailed([&]()->HRESULT
         {
+            
             // Start the capture
             RETURN_IF_FAILED(m_AudioClient->Start());
 
             m_DeviceState = DeviceState::Capturing;
             MFPutWaitingWorkItem(m_SampleReadyEvent.get(), 0, m_SampleReadyAsyncResult.get(), &m_SampleReadyKey);
-
+            
             return S_OK;
         }());
 }
@@ -193,6 +198,7 @@ HRESULT CLoopbackCapture::OnStartCapture(IMFAsyncResult* pResult)
 //
 HRESULT CLoopbackCapture::StopCaptureAsync()
 {
+    
     RETURN_HR_IF(E_NOT_VALID_STATE, (m_DeviceState != DeviceState::Capturing) &&
         (m_DeviceState != DeviceState::Error));
 
@@ -202,7 +208,7 @@ HRESULT CLoopbackCapture::StopCaptureAsync()
 
     // Wait for capture to stop
     m_hCaptureStopped.wait();
-
+    
     return S_OK;
 }
 
@@ -215,6 +221,7 @@ HRESULT CLoopbackCapture::OnStopCapture(IMFAsyncResult* pResult)
 {
     // Stop capture by cancelling Work Item
     // Cancel the queued work item (if any)
+    
     if (0 != m_SampleReadyKey)
     {
         MFCancelWorkItem(m_SampleReadyKey);
@@ -223,7 +230,7 @@ HRESULT CLoopbackCapture::OnStopCapture(IMFAsyncResult* pResult)
 
     m_AudioClient->Stop();
     m_SampleReadyAsyncResult.reset();
-
+    
     return FinishCaptureAsync();
 }
 
@@ -247,13 +254,13 @@ HRESULT CLoopbackCapture::FinishCaptureAsync()
 HRESULT CLoopbackCapture::OnFinishCapture(IMFAsyncResult* pResult)
 {
     // FixWAVHeader will set the DeviceStateStopped when all async tasks are complete
-    //HRESULT hr = audioFile.FixWAVHeader();
-    HRESULT hr = S_OK;
+    HRESULT hr = audioFile.FixWAVHeader();
+    
     m_DeviceState = DeviceState::Stopped;
 
     m_hCaptureStopped.SetEvent();
-
-    return hr;
+    
+    return S_OK;
 }
 
 //
@@ -263,6 +270,7 @@ HRESULT CLoopbackCapture::OnFinishCapture(IMFAsyncResult* pResult)
 //
 HRESULT CLoopbackCapture::OnSampleReady(IMFAsyncResult* pResult)
 {
+    
     if (SUCCEEDED(OnAudioSampleRequested()))
     {
         // Re-queue work item for next sample
@@ -276,7 +284,7 @@ HRESULT CLoopbackCapture::OnSampleReady(IMFAsyncResult* pResult)
     {
         m_DeviceState = DeviceState::Error;
     }
-
+    
     return S_OK;
 }
 
@@ -293,7 +301,7 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
     UINT64 u64DevicePosition = 0;
     UINT64 u64QPCPosition = 0;
     DWORD cbBytesToCapture = 0;
-
+    
     auto lock = m_CritSec.lock();
 
     // If this flag is set, we have already queued up the async call to finialize the WAV header
@@ -302,7 +310,7 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
     {
         return S_OK;
     }
-
+    
     // A word on why we have a loop here;
     // Suppose it has been 10 milliseconds or so since the last time
     // this routine was invoked, and that we're capturing 48000 samples per second.
@@ -323,6 +331,7 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
     //
     // We do this by calling IAudioCaptureClient::GetNextPacketSize
     // over and over again until it indicates there are no more packets remaining.
+    
     while (SUCCEEDED(m_AudioCaptureClient->GetNextPacketSize(&FramesAvailable)) && FramesAvailable > 0)
     {
         cbBytesToCapture = FramesAvailable * m_CaptureFormat.nBlockAlign;
@@ -341,23 +350,32 @@ HRESULT CLoopbackCapture::OnAudioSampleRequested()
         // Write File
         if (m_DeviceState != DeviceState::Stopping)
         {
-            pOBuffer->push(Data, FramesAvailable);
-            lock_loopback->store(false);
-            /*
-            DWORD dwBytesWritten = 0;
-            RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
-                audioFile.m_hFile.get(),
-                Data,
-                cbBytesToCapture,
-                &dwBytesWritten,
-                NULL));*/
+            // Resampling
+            DWORD convertedBytesToCapture = 0;
+            std::vector<BYTE> convertedDataBuffer(cbBytesToCapture);
+            BYTE* convertedData = convertedDataBuffer.data();
+            HRESULT hr = resampler.ProcessAudioSample(Data, cbBytesToCapture, convertedData, &convertedBytesToCapture);
+
+            if (hr == S_OK) {
+                FramesAvailable = convertedBytesToCapture / 2;
+                pOBuffer->push(convertedData, FramesAvailable);
+
+                DWORD dwBytesWritten = 0;
+                RETURN_IF_WIN32_BOOL_FALSE(WriteFile(
+                    audioFile.m_hFile.get(),
+                    convertedData,
+                    cbBytesToCapture,
+                    &dwBytesWritten,
+                    NULL));
+                
+                SetEvent(*loopbacked_event);
+            }
         }
-        
         // Release buffer back
         m_AudioCaptureClient->ReleaseBuffer(FramesAvailable);
 
         // Increase the size of our 'data' chunk.  m_cbDataSize needs to be accurate
-        //audioFile.m_cbDataSize += cbBytesToCapture;
+        audioFile.m_cbDataSize += cbBytesToCapture;
     }
 
     return S_OK;

@@ -123,9 +123,9 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>mmdevapi.lib;Mfplat.lib;Mf.lib;Mfreadwrite.lib;Mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)" "$(SolutionDir)\$(PlatformName)\$(ConfigurationName)\" /s /i /y
@@ -150,11 +150,8 @@ xcopy "$(OutDir)DuplexAudioCapture.dll" "$(ProjectDir)..\..\voita_app\build\wind
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>mmdevapi.lib;
-Mfplat.lib
-;Mf.lib
-;Mfreadwrite.lib
-;Mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mmdevapi.lib;Mfplat.lib;Mf.lib;Mfreadwrite.lib;Mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)" "$(SolutionDir)\$(PlatformName)\$(ConfigurationName)\" /s /i /y
@@ -170,6 +167,7 @@ xcopy "$(OutDir)DuplexAudioCapture.dll" "$(ProjectDir)..\..\voita_app\build\wind
     <ClInclude Include="include\LoopbackCapture.h" />
     <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\ProcessManager.h" />
+    <ClInclude Include="include\Resampler.h" />
     <ClInclude Include="include\StreamCapture.h" />
     <ClInclude Include="include\StreamMixer.h" />
   </ItemGroup>
@@ -180,6 +178,7 @@ xcopy "$(OutDir)DuplexAudioCapture.dll" "$(ProjectDir)..\..\voita_app\build\wind
     <ClCompile Include="src\LoopbackCapture.cpp" />
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\ProcessManager.cpp" />
+    <ClCompile Include="src\Resampler.cpp" />
     <ClCompile Include="src\StreamCapture.cpp" />
     <ClCompile Include="src\StreamMixer.cpp" />
   </ItemGroup>

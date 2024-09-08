@@ -11,6 +11,7 @@
 class StreamMixer {
 public:
 	__declspec(dllexport) std::vector<int32_t> Impose(circular_buffer<int16_t> * iBuffer, circular_buffer<int16_t>* oBuffer);
+	__declspec(dllexport) std::vector<int16_t> Impose(circular_buffer<int16_t> * iBuffer, circular_buffer<int16_t>* oBuffer, int debug);
 
 private:
 	int lastFrame = 0;

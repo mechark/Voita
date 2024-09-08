@@ -31,8 +31,8 @@ class AudioRecorder {
 
 		std::thread mixingThread;
 
-		std::atomic<bool> lock_capture;
-		std::atomic<bool> lock_loopback;
+		HANDLE capture_event;
+		HANDLE loopback_event;
 		std::atomic<bool> is_mixing;
 
 		circular_buffer<int16_t> iBuffer;

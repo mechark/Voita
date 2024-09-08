@@ -45,6 +45,9 @@
     <ClInclude Include="include\StreamMixer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Resampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AudioFile.cpp">
@@ -69,6 +72,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\StreamMixer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Resampler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

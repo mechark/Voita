@@ -13,16 +13,10 @@
 #define REFTIMES_PER_MILLISEC  10000
 #define BITS_PER_BYTE 8
 
-StreamCapture::StreamCapture(circular_buffer<int16_t> * iBuffer, std::atomic<bool> * mix_lock)
+void StreamCapture::Init(circular_buffer<int16_t>* iBuffer, HANDLE* capture_event)
 {
 	pIBuffer = iBuffer;
-	lock = mix_lock;
-}
-
-void StreamCapture::Init(circular_buffer<int16_t>* iBuffer, std::atomic<bool>* mix_lock)
-{
-	pIBuffer = iBuffer;
-	lock = mix_lock;
+	captured_event = capture_event;
 }
 
 HRESULT StreamCapture::ActivateAudioClient() {
@@ -93,10 +87,10 @@ HRESULT StreamCapture::OnSampleReady() {
 			nextDataPacketAddr = NULL;
 		}
 
-		//DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign;
-
+		//DWORD cbBytesToCapture = numFramesAvailable * pStreamFormat->nBlockAlign
+		
 		pIBuffer->push(nextDataPacketAddr, numFramesAvailable);
-		lock->store(false);
+		SetEvent(*captured_event);
 
 		/*
 		DWORD dwBytesWritten = 0;
@@ -126,6 +120,8 @@ HRESULT StreamCapture::OnStartCapture() {
 		bufferFrameCount / pStreamFormat->nSamplesPerSec;
 
 	RETURN_IF_FAILED(pAudioClient->Start());
+
+	return S_OK;
 }
 
 
@@ -145,6 +141,7 @@ HRESULT StreamCapture::StartCaptureAsync(LPCWSTR file)
 		while (!isDone) {
 			OnSampleReady();
 		}
+
 	});
 
 	return S_OK;

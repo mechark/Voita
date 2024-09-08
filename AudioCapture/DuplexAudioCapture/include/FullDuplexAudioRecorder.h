@@ -4,6 +4,9 @@
 #include <mfidl.h>
 #include <atomic>
 #include <thread>
+#include <mutex>
+#include <future>
+#include <condition_variable>
 
 #include "LoopbackCapture.h"
 #include "StreamCapture.h"
@@ -21,22 +24,22 @@ class FullDuplexAudioRecorder {
 		__declspec(dllexport) HRESULT StopRecording();
 
 	private:
-		StreamCapture streamCapture;
-		CLoopbackCapture loopbackCapture;
+		std::unique_ptr<StreamCapture> streamCapture;
+		ComPtr<CLoopbackCapture> loopbackCapture;
 
 		WAVEFORMATEX pStreamFormat{};
 		AudioFile audioFile;
 		StreamMixer streamMixer;
 
-		std::thread mixingThread;
-		std::atomic<bool> lock_capture;
-		std::atomic<bool> lock_loopback;
 		std::atomic<bool> is_mixing;
+		std::future<void> mixingThread;
 
+		HANDLE capture_event;
+		HANDLE loopback_event;
+		
 		circular_buffer<int16_t> iBuffer;
 		circular_buffer<int16_t> oBuffer;
 		circular_buffer<int32_t> mixedBuffer;
-
-
+		
 		__declspec(dllexport) void mixing();
 };

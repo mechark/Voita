@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -12,7 +10,6 @@ import 'package:voita_app/features/notes-overview/presentation/note_card.dart';
 import 'package:voita_app/features/recording/bloc/recording_bloc.dart';
 import 'package:voita_app/features/search/presentation/voita_search_bar.dart';
 import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
-import 'package:voita_audio/voita_audio.dart';
 
 class NotesOverviewDesk extends StatefulWidget {
   final List<Note> notes;
@@ -156,7 +153,7 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                 color: Colors.black.withOpacity(0),
                 child: Scaffold(body: Builder(builder: (context) {
                 
-                final notesState     = context.watch<NotesBloc>().state;
+                final notesState = context.watch<NotesBloc>().state;
                 final recordingState = context.watch<RecordingBloc>().state;
 
                 return Row(children: <Widget>[
@@ -290,23 +287,46 @@ class _NotesOverviewDeskState extends State<NotesOverviewDesk> {
                                   recordingBloc.add(const OngoingRecording(text: ""));
                                 }
                               },
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Запис',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 16,
-                                        fontFamily: 'Lato'),
-                                  ),
-                                  Icon(
-                                    Icons.mic,
-                                    size: 25,
-                                  ),
-                                ],
-                              ),
-                            ))
+                              child: BlocBuilder<RecordingBloc, RecordingState> (builder: (context, state) {
+                                if (state is RecordingInProgress) {
+                                  return const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Зупинити',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 16,
+                                            fontFamily: 'Lato'),
+                                      ),
+                                      Icon(
+                                        Icons.mic,
+                                        size: 25,
+                                      ),
+                                    ],
+                                    ); 
+                                } 
+                                else {
+                                  return const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Запис',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 16,
+                                            fontFamily: 'Lato'),
+                                      ),
+                                      Icon(
+                                        Icons.mic,
+                                        size: 25,
+                                      ),
+                                    ],
+                                    ); 
+                                }
+                              })
+                            )
+                          )
                       ],
                     ),
                     destinations: const <NavigationRailDestination>[

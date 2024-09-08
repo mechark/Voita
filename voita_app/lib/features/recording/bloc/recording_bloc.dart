@@ -70,7 +70,7 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
         }
       }
       else if (Platform.isWindows) {
-        print(frame);
+        //print(frame);
         emit(const RecordingInProgress(text: ""));
       } 
       else {

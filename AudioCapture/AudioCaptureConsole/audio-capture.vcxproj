@@ -108,7 +108,6 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>mmdevapi.lib;Mfplat.lib;Mf.lib;Mfreadwrite.lib;Mfuuid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\forru\source\repos\audio-capture\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

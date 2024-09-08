@@ -3,11 +3,17 @@
 #include <vector>
 #include <mfidl.h>
 #include "FullDuplexAudioRecorder.h"
+#include <mutex>
+#include <condition_variable>
 #include <algorithm>
+#include <future>
 
 FullDuplexAudioRecorder::FullDuplexAudioRecorder()
 	: iBuffer(BUFF_SIZE), oBuffer(BUFF_SIZE), mixedBuffer(BUFF_SIZE)
 {
+	streamCapture = std::make_unique<StreamCapture>();
+	loopbackCapture = Microsoft::WRL::Make<CLoopbackCapture>();
+
 	pStreamFormat.wFormatTag = WAVE_FORMAT_PCM;
 	pStreamFormat.nChannels = 1;
 	pStreamFormat.nSamplesPerSec = 16000;
@@ -16,68 +22,79 @@ FullDuplexAudioRecorder::FullDuplexAudioRecorder()
 	pStreamFormat.nAvgBytesPerSec = pStreamFormat.nSamplesPerSec * pStreamFormat.nBlockAlign;
 	pStreamFormat.cbSize = 0;
 
-	lock_capture.store(true);
-	lock_loopback.store(true);
 	is_mixing.store(true);
-
-	streamCapture.Init(&iBuffer, &lock_capture);
-	loopbackCapture.Init(&oBuffer, &lock_loopback);
+	
+	capture_event = CreateEventA(NULL, TRUE, FALSE, "CaptureEvent");
+	loopback_event = CreateEventA(NULL, TRUE, FALSE, "LoopbackEvent");
+	
+	streamCapture->Init(&iBuffer, &capture_event);
+	loopbackCapture->Init(&oBuffer, &loopback_event);
 }
 
 FullDuplexAudioRecorder::~FullDuplexAudioRecorder()
 {
-	mixingThread.detach();
-	streamCapture.FinishCapture();
-	loopbackCapture.StopCaptureAsync();
+	CloseHandle(capture_event);
+	CloseHandle(loopback_event);
 }
 
 void FullDuplexAudioRecorder::mixing()
 {
+	
+	HANDLE events[2] = { capture_event, loopback_event };
 	Sleep(1500);
-	while (is_mixing)
+	while (is_mixing.load())
 	{
-		if (!lock_capture && !lock_loopback)
-		{
-			std::vector<int32_t> buff = streamMixer.Impose(&iBuffer, &oBuffer);
-			/*
-			DWORD cbBytesToCapture = buff.size() * pStreamFormat.nBlockAlign;
+		DWORD res = WaitForMultipleObjects(2, events, TRUE, 100);
+		if (res == WAIT_OBJECT_0) {
+
+			std::vector<int16_t> frame = streamMixer.Impose(&iBuffer, &oBuffer, 1);
+			
+			DWORD cbBytesToCapture = frame.size() * pStreamFormat.nBlockAlign;
 			DWORD dwBytesWritten = 0;
+			
 			WriteFile(
 				audioFile.m_hFile.get(),
-				buff.data(),
+				frame.data(),
 				cbBytesToCapture,
 				&dwBytesWritten,
 				NULL);
-			
+
 			audioFile.m_cbDataSize += cbBytesToCapture;
-			*/
-			lock_capture.store(true);
-			lock_loopback.store(true);
+			
+			ResetEvent(capture_event);
+			ResetEvent(loopback_event);
+		}
+		else {
+
 		}
 	}
 }
 
 HRESULT FullDuplexAudioRecorder::StartRecording(DWORD processId, bool includeTree)
 {
-	//audioFile.CreateWAVFile(pStreamFormat, L"duplex.wav");
+	audioFile.CreateWAVFile(pStreamFormat, L"duplex.wav");
 
-	streamCapture.StartCaptureAsync();
-	loopbackCapture.StartCaptureAsync(processId, includeTree);
+	streamCapture->StartCaptureAsync();
+	loopbackCapture->StartCaptureAsync(processId, includeTree);
 
-	mixingThread = std::thread(&FullDuplexAudioRecorder::mixing, this);
+	mixingThread = std::async(std::launch::async, &FullDuplexAudioRecorder::mixing, this);
+	//auto thread = std::thread(&FullDuplexAudioRecorder::mixing, this);
 
 	return S_OK;
 }
 
 HRESULT FullDuplexAudioRecorder::StopRecording()
 {
-	RETURN_IF_FAILED(streamCapture.FinishCapture());
-	RETURN_IF_FAILED(loopbackCapture.StopCaptureAsync());
+	RETURN_IF_FAILED(streamCapture->FinishCapture());
+	RETURN_IF_FAILED(loopbackCapture->StopCaptureAsync());
 
 	// Kills mixingThread
 	is_mixing.store(false);
+	if (mixingThread.valid()) {
+		mixingThread.wait(); 
+	}
 
-	//RETURN_IF_FAILED(audioFile.FixWAVHeader());
+	RETURN_IF_FAILED(audioFile.FixWAVHeader());
 
 	return S_OK;
 }
