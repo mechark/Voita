@@ -4,6 +4,7 @@
 #include <mfidl.h>
 #include <atomic>
 #include <thread>
+#include <future>
 
 #include <LoopbackCapture.h>
 #include <StreamCapture.h>
@@ -18,18 +19,19 @@ typedef flutter::EventSink<flutter::EncodableValue> FlEventSink;
 class AudioRecorder {
 	public:
 		AudioRecorder(HWND message_window);
+		~AudioRecorder();
 		HRESULT StartRecording(DWORD processId, bool includeTree);
 		HRESULT StopRecording();
 
 	private:
-		StreamCapture streamCapture;
-		CLoopbackCapture loopbackCapture;
+		std::unique_ptr<StreamCapture> streamCapture;
+		ComPtr<CLoopbackCapture> loopbackCapture;
 
 		WAVEFORMATEX pStreamFormat{};
 		AudioFile audioFile;
 		StreamMixer streamMixer;
 
-		std::thread mixingThread;
+		std::future<void> mixingThread;
 
 		HANDLE capture_event;
 		HANDLE loopback_event;
