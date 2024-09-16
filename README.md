@@ -1,5 +1,6 @@
 # Voita
 Voita – speech-to-text notes for ukrainian language
+![image](https://github.com/user-attachments/assets/93dc56b0-4bf7-4f20-9430-476e5a72dc29)
 
 # Voita structure
 
