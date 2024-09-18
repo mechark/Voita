@@ -2,13 +2,13 @@ part of 'recording_bloc.dart';
 
 sealed class RecordingState extends Equatable {
   const RecordingState();
-  
+
   @override
   List<Object> get props => [];
 }
 
-final class RecordingStarted extends RecordingState {
-  const RecordingStarted();
+final class RecordingInitial extends RecordingState {
+  const RecordingInitial();
 
   @override
   List<Object> get props => [];

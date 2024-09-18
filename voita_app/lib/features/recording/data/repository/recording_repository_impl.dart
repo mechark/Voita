@@ -2,16 +2,11 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class RecordingRepositoryImpl {
-
   Future<String> sendToPipeline(List<int> frame) async {
-    Map<String, String> body = {
-      'audio_input': frame.toList().toString()
-    };
+    Map<String, String> body = {'audio_input': frame.toList().toString()};
 
-    Response response = await http.post(
-      Uri.parse("http://10.0.2.2:3000/process_audio"),
-      body: body
-    );
+    Response response = await http
+        .post(Uri.parse("http://10.0.2.2:3000/process_audio"), body: body);
 
     return response.body;
   }

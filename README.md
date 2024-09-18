@@ -2,9 +2,12 @@
 Voita – speech-to-text notes for ukrainian language
 ![image](https://github.com/user-attachments/assets/93dc56b0-4bf7-4f20-9430-476e5a72dc29)
 
+# Atentancion
+**!!!COMPILE AudioCapture first**
+
 # Voita structure
 
-## Features folder structure
+## Features folder structure for voita_app
 ```
 ‣ features
     Main folder that follows the Feature-first architecture pattern
@@ -22,9 +25,9 @@ Voita – speech-to-text notes for ukrainian language
 ```
 ‣ presentation
     Widgets, States, Controllers
-‣ application  
+‣ services  
     Services
-‣ domain
+‣ models
     Models
 ‣ data
     Repositories, DTOs, Data sources

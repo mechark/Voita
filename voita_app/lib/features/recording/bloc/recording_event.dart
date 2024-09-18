@@ -8,7 +8,6 @@ sealed class RecordingEvent extends Equatable {
 }
 
 class StartRecording extends RecordingEvent {
-
   const StartRecording();
 
   @override

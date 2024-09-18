@@ -5,26 +5,23 @@ part 'note_model.g.dart';
 
 @unfreezed
 class Note with _$Note {
-  factory Note({
-    required String header,
-    required String text,
-    required final DateTime date,
-    required final int id,
-    required final int duration,
-    required final String audio_location
-  }) = _Note;
+  factory Note(
+      {required String header,
+      required String text,
+      required final DateTime date,
+      required final int id,
+      required final int duration,
+      required final String audioLocation}) = _Note;
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
-      id: map['id'],
-      header: map['header'] ?? "Нотатка",
-      text: map['text'],
-      date: DateTime.parse(map['date']),
-      duration: map['duration'],
-      audio_location: map['audio_location']
-    );
+        id: map['id'],
+        header: map['header'] ?? "Нотатка",
+        text: map['text'],
+        date: DateTime.parse(map['date']),
+        duration: map['duration'],
+        audioLocation: map['audio_location']);
   }
 
-  factory Note.fromJson(Map<String, Object?> json)
-      => _$NoteFromJson(json);
+  factory Note.fromJson(Map<String, Object?> json) => _$NoteFromJson(json);
 }
