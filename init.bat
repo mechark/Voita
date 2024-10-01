@@ -5,3 +5,5 @@ cd ../../
 cd voita_audio/windows
 mkdir build
 cmake -S . -B build
+
+pause
