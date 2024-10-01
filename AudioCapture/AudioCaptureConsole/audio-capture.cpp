@@ -16,10 +16,10 @@ int main()
 	ProcessManager processManager;
 	std::unique_ptr<FullDuplexAudioRecorder> audioRecorder = std::make_unique<FullDuplexAudioRecorder>();
 
-	PCWSTR processName = L"Spotify.exe";
+	PCWSTR processName = L"Zoom.exe";
 	DWORD processId = processManager.FindProcessByName(processName);
 	
 	audioRecorder->StartRecording(processId, true);
-	Sleep(10000);
+	Sleep(3600000);
 	audioRecorder->StopRecording();
 }

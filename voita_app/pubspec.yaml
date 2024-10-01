@@ -55,6 +55,7 @@ dependencies:
   get_it: ^7.7.0
   voita_audio:
     path: "../voita_audio" 
+  web_socket_channel: ^3.0.1
 
 
 dev_dependencies:

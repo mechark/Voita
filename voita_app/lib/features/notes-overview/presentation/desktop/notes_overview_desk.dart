@@ -14,8 +14,7 @@ import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 class NotesOverviewDesk extends StatefulWidget {
   final List<Note> notes;
   final StatefulNavigationShell navigationShell;
-  const NotesOverviewDesk(
-      {super.key, required this.notes, required this.navigationShell});
+  const NotesOverviewDesk({super.key, required this.notes, required this.navigationShell});
 
   @override
   State<NotesOverviewDesk> createState() {

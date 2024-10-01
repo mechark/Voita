@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:voita_app/constants/app_colors.dart';
-import 'package:voita_app/features/note-review/presentation/note_screen.dart';
+import 'package:voita_app/features/note-review/presentation/mobile/note_screen_mob.dart';
 import 'package:voita_app/features/notes-overview/models/note_model.dart';
 import 'package:voita_app/utils/blocs/notes_bloc/notes_bloc.dart';
 import 'package:voita_app/utils/services/context_extension.dart';
@@ -40,7 +40,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
                 //     const BoxConstraints(minWidth: 400, maxWidth: 1000),
                 //     xl: const BoxConstraints(
                 //         minWidth: 400, maxWidth: 500, maxHeight: 100)),
-                padding: const EdgeInsets.all(100),
+                padding: const EdgeInsets.all(10),
                 child: SearchAnchor(
                   viewLeading: const Icon(Icons.search),
                   viewShape: const RoundedRectangleBorder(),
@@ -51,11 +51,11 @@ class _SearchBarAppState extends State<SearchBarApp> {
                   builder: (BuildContext context, SearchController controller) {
                     return SearchBar(
                       backgroundColor: context.responsive(
-                          MaterialStateProperty.all(AppColor.purplishBlueLight),
-                          xl: MaterialStateProperty.all(Colors.white)),
-                      overlayColor: MaterialStateProperty.all(Colors.white),
-                      shadowColor: MaterialStateProperty.all(Colors.white),
-                      surfaceTintColor: MaterialStateProperty.all(Colors.white),
+                          WidgetStateProperty.all(AppColor.purplishBlueLight),
+                          xl: WidgetStateProperty.all(Colors.white)),
+                      overlayColor: WidgetStateProperty.all(Colors.white),
+                      shadowColor: WidgetStateProperty.all(Colors.white),
+                      surfaceTintColor: WidgetStateProperty.all(Colors.white),
                       controller: controller,
                       onChanged: (_) {
                         // controller.openView();

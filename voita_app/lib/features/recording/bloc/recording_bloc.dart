@@ -14,6 +14,7 @@ import 'package:voita_app/features/recording/services/recorder_interface.dart';
 import 'package:voita_app/features/recording/services/recorder_service_windows.dart';
 import 'package:voita_app/features/recording/services/voita_recorder.dart';
 import 'package:voita_app/features/recording/services/recorder_service_mobile.dart';
+import 'package:voita_app/utils/api/WebSocketClient.dart';
 import 'package:voita_app/utils/data/note_repository_impl.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -71,6 +72,8 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
       }
       else if (Platform.isWindows) {
         //print(frame);
+        WebSocketClient client = WebSocketClient();
+        client.send_frame(frame);
         emit(const RecordingInProgress(text: ""));
       } 
       else {

@@ -35,6 +35,17 @@ FullDuplexAudioRecorder::~FullDuplexAudioRecorder()
 {
 	CloseHandle(capture_event);
 	CloseHandle(loopback_event);
+
+	streamCapture->FinishCapture();
+	loopbackCapture->StopCaptureAsync();
+
+	// Kills mixingThread
+	is_mixing.store(false);
+	if (mixingThread.valid()) {
+		mixingThread.wait();
+	}
+
+	audioFile.FixWAVHeader();
 }
 
 void FullDuplexAudioRecorder::mixing()
