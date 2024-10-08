@@ -3,13 +3,14 @@
 
 #include "AudioFile.h"
 #include "circular_buffer.h"
+#include "LoopBack.h"
 
 #define BUSY_DEVICE_ERROR 0x88890010
 
 class StreamCapture {
 	public:
 		__declspec(dllexport) StreamCapture() = default;
-		__declspec(dllexport) HRESULT StartCaptureAsync(LPCWSTR file = L"input.wav");
+		__declspec(dllexport) HRESULT StartCaptureAsync(PCWSTR file = L"output.wav");
 		__declspec(dllexport) HRESULT FinishCapture();
 		__declspec(dllexport) HRESULT ActivateAudioClient();
 		__declspec(dllexport) void Init(circular_buffer<int16_t>* iBuffer, HANDLE* capture_event);

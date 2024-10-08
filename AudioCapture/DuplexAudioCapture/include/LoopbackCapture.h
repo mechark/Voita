@@ -13,18 +13,19 @@
 #include "AudioFile.h"
 #include "circular_buffer.h"
 #include "Resampler.h"
+#include "LoopBack.h"
 
 using namespace Microsoft::WRL;
 
 class CLoopbackCapture :
-    public RuntimeClass< RuntimeClassFlags< ClassicCom >, FtmBase, IActivateAudioInterfaceCompletionHandler >
+    public RuntimeClass< RuntimeClassFlags< ClassicCom >, FtmBase, IActivateAudioInterfaceCompletionHandler >, public LoopBack
 {
 public:
-    __declspec(dllexport) void Init(circular_buffer<int16_t>* iBuffer, HANDLE* loopback_event);
+    __declspec(dllexport) void Init(circular_buffer<int16_t>* iBuffer, HANDLE* capture_event) override;
     __declspec(dllexport) CLoopbackCapture() = default;
     __declspec(dllexport) ~CLoopbackCapture();
 
-    __declspec(dllexport) HRESULT StartCaptureAsync(DWORD processId, bool includeProcessTree, PCWSTR outputFileName = L"output.wav");
+    __declspec(dllexport) virtual HRESULT StartCaptureAsync(DWORD processId, bool includeProcessTree, PCWSTR file = L"output.wav") override;
     __declspec(dllexport) HRESULT StopCaptureAsync();
 
     METHODASYNCCALLBACK(CLoopbackCapture, StartCapture, OnStartCapture);
@@ -58,6 +59,7 @@ private:
     __declspec(dllexport) HRESULT OnAudioSampleRequested();
 
     __declspec(dllexport) HRESULT ActivateAudioInterface(DWORD processId, bool includeProcessTree);
+    __declspec(dllexport) HRESULT ActivateAudioInterfaceForSystemAudio();
     __declspec(dllexport) HRESULT FinishCaptureAsync();
 
     __declspec(dllexport) HRESULT SetDeviceStateErrorIfFailed(HRESULT hr);

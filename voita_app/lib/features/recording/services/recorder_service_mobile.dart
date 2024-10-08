@@ -11,7 +11,7 @@ class RecorderServiceMobile implements Recorder {
       : _voiceProcessor = VoiceProcessor.instance;
 
   @override
-  Future<void> startProcessing() async {
+  Future<void> startProcessing(String ? whereToListen) async {
     if (_voiceProcessor != null) {
       return await _voiceProcessor.start(frameLength, sampleRate);
     }
@@ -45,6 +45,7 @@ class RecorderServiceMobile implements Recorder {
     }
   }
 
+  @override
   Future<bool?> get isRecording async {
     if (_voiceProcessor != null) {
       return await _voiceProcessor.isRecording();

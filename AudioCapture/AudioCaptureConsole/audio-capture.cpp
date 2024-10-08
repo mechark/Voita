@@ -16,10 +16,10 @@ int main()
 	ProcessManager processManager;
 	std::unique_ptr<FullDuplexAudioRecorder> audioRecorder = std::make_unique<FullDuplexAudioRecorder>();
 
-	PCWSTR processName = L"Zoom.exe";
+	PCWSTR processName = L"Firefox.exe";
 	DWORD processId = processManager.FindProcessByName(processName);
 	
 	audioRecorder->StartRecording(processId, true);
-	Sleep(3600000);
+	Sleep(10000);
 	audioRecorder->StopRecording();
 }

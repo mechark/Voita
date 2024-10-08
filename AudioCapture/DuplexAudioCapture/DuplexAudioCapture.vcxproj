@@ -159,6 +159,7 @@ xcopy "$(OutDir)DuplexAudioCapture.dll" "$(ProjectDir)..\..\voita_app\build\wind
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FullLoopbackCapture.h" />
     <ClInclude Include="include\AudioFile.h" />
     <ClInclude Include="include\circular_buffer.h" />
     <ClInclude Include="include\Common.h" />
@@ -170,8 +171,10 @@ xcopy "$(OutDir)DuplexAudioCapture.dll" "$(ProjectDir)..\..\voita_app\build\wind
     <ClInclude Include="include\Resampler.h" />
     <ClInclude Include="include\StreamCapture.h" />
     <ClInclude Include="include\StreamMixer.h" />
+    <ClInclude Include="LoopBack.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FullLoopbackCapture.cpp" />
     <ClCompile Include="src\AudioFile.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\FullDuplexAudioRecorder.cpp" />

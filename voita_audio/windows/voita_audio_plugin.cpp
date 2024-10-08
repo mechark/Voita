@@ -46,9 +46,13 @@ private:
     HWND message_window;
     int window_proc_id = -1;
     static const UINT WM_AUDIO_FRAME = WM_USER + 1;
+    std::unordered_map<std::string, PCWSTR> AVAILABLE_PROCESSES;
+    std::string processName;
 
     static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     HWND CreateMessageWindow(HINSTANCE hInstance);
+
+    std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> method_channel;
 };
 
 // static
@@ -72,11 +76,37 @@ LRESULT CALLBACK AudioRecorderStreamHandler::WindowProc(HWND hwnd, UINT uMsg, WP
 AudioRecorderStreamHandler::AudioRecorderStreamHandler(flutter::PluginRegistrarWindows *registrar)
     : _registrar(registrar) 
 {   
+    method_channel = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+      registrar->messenger(), "set_process_name",   
+      &flutter::StandardMethodCodec::GetInstance());
+
+    method_channel->SetMethodCallHandler(
+        [this](const flutter::MethodCall<>& call, std::unique_ptr<flutter::MethodResult<>> result) {
+
+            if (call.method_name().compare("set_process_name") == 0) {
+                const std::string* procName = std::get_if<std::string>(call.arguments());
+                this->processName = *procName;
+                result->Success(flutter::EncodableValue(*procName));
+            }
+            else {
+                result->NotImplemented();
+            }
+        });
+
     HINSTANCE hInstance = GetModuleHandle(NULL);
     message_window = CreateMessageWindow(hInstance);
 
     // Pass this to the static WindowProc 
     SetWindowLongPtrW(message_window, 0, reinterpret_cast<LONG_PTR>(this));
+
+    AVAILABLE_PROCESSES = {
+        {"Firefox", L"Firefox.exe"},
+        {"Chrome", L"Chrome.exe"},
+        {"Zoom", L"Zoom.exe"},
+        {"Microsoft Teams", L"ms-teams.exe"}
+    };
+
+    //processName = AVAILABLE_PROCESSES["Zoom"];
 }
 
 HWND AudioRecorderStreamHandler::CreateMessageWindow(HINSTANCE hInstance) {
@@ -114,12 +144,16 @@ std::unique_ptr<FlStreamHandlerError> AudioRecorderStreamHandler::OnListenIntern
     const flutter::EncodableValue *arguments,
     std::unique_ptr<FlEventSink> &&events) 
 {
-     sink = std::move(events);
-     ProcessManager processManager;
-     recorder = std::make_unique<AudioRecorder>(message_window);
+    sink = std::move(events);
+    ProcessManager processManager;
+    DWORD processId = processManager.FindProcessByName(L"explorer.exe");
+    recorder = std::make_unique<AudioRecorder>(message_window);
+        
+    if (AVAILABLE_PROCESSES.count(processName) != 0) {
+        processId = processManager.FindProcessByName(AVAILABLE_PROCESSES[processName]);
+    }
 
-     DWORD processId = processManager.FindProcessByName(L"Firefox.exe");
-     recorder->StartRecording(processId, true);
+    recorder->StartRecording(0, true);
 
     return nullptr;
 }

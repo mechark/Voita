@@ -52,12 +52,10 @@ void CLoopbackCapture::Init(circular_buffer<int16_t>* buffer, HANDLE* loopback_e
 
 CLoopbackCapture::~CLoopbackCapture()
 {
-    
     if (m_dwQueueID != 0)
     {
         MFUnlockWorkQueue(m_dwQueueID);
     }
-    
 }
 
 HRESULT CLoopbackCapture::ActivateAudioInterface(DWORD processId, bool includeProcessTree)
@@ -153,12 +151,19 @@ HRESULT CLoopbackCapture::ActivateCompleted(IActivateAudioInterfaceAsyncOperatio
 
 HRESULT CLoopbackCapture::StartCaptureAsync(DWORD processId, bool includeProcessTree, PCWSTR outputFileName)
 {
-    
     m_outputFileName = outputFileName;
     auto resetOutputFileName = wil::scope_exit([&] { m_outputFileName = nullptr; });
 
     RETURN_IF_FAILED(InitializeLoopbackCapture());
-    RETURN_IF_FAILED(ActivateAudioInterface(processId, includeProcessTree));
+
+    if (processId == 0)
+    {
+        RETURN_IF_FAILED(ActivateAudioInterfaceForSystemAudio());
+    }
+    else
+    {
+        RETURN_IF_FAILED(ActivateAudioInterface(processId, includeProcessTree));
+    }
 
     // We should be in the initialzied state if this is the first time through getting ready to capture.
     if (m_DeviceState == DeviceState::Initialized)
@@ -168,6 +173,32 @@ HRESULT CLoopbackCapture::StartCaptureAsync(DWORD processId, bool includeProcess
     }
     
     return S_OK;
+}
+
+HRESULT CLoopbackCapture::ActivateAudioInterfaceForSystemAudio()
+{
+    return SetDeviceStateErrorIfFailed([&]() -> HRESULT
+    {
+        AUDIOCLIENT_ACTIVATION_PARAMS audioclientActivationParams = {};
+        audioclientActivationParams.ActivationType = AUDIOCLIENT_ACTIVATION_TYPE_PROCESS_LOOPBACK;
+        
+        // Set system audio mode
+        audioclientActivationParams.ProcessLoopbackParams.ProcessLoopbackMode = PROCESS_LOOPBACK_MODE_EXCLUDE_TARGET_PROCESS_TREE;
+        audioclientActivationParams.ProcessLoopbackParams.TargetProcessId = 0; // No specific target
+
+        PROPVARIANT activateParams = {};
+        activateParams.vt = VT_BLOB;
+        activateParams.blob.cbSize = sizeof(audioclientActivationParams);
+        activateParams.blob.pBlobData = (BYTE*)&audioclientActivationParams;
+
+        wil::com_ptr_nothrow<IActivateAudioInterfaceAsyncOperation> asyncOp;
+        RETURN_IF_FAILED(ActivateAudioInterfaceAsync(VIRTUAL_AUDIO_DEVICE_PROCESS_LOOPBACK, __uuidof(IAudioClient), &activateParams, this, &asyncOp));
+
+        // Wait for activation completion
+        m_hActivateCompleted.wait();
+
+        return m_activateResult;
+    }());
 }
 
 //
@@ -198,7 +229,6 @@ HRESULT CLoopbackCapture::OnStartCapture(IMFAsyncResult* pResult)
 //
 HRESULT CLoopbackCapture::StopCaptureAsync()
 {
-    
     RETURN_HR_IF(E_NOT_VALID_STATE, (m_DeviceState != DeviceState::Capturing) &&
         (m_DeviceState != DeviceState::Error));
 

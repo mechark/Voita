@@ -110,7 +110,8 @@ class RecordingBloc extends Bloc<RecordingEvent, RecordingState> {
     }
 
     _stopWatch.start();
-    await audioProcessor.startProcessing();
+    String processName = "Firefox";
+    await audioProcessor.startProcessing(processName);
     audioProcessor.addListener(_addUtterance);
   }
 

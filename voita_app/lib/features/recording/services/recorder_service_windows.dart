@@ -11,16 +11,22 @@ class RecorderServiceWindows implements Recorder {
   bool _isRecording = false;
 
   @override
-  Future<void> startProcessing() async {
-    _audioStream = _voitaAudio.getAudioStream();
+  Future<void> startProcessing(String ? whereToRecord) async {
+    assert(whereToRecord != null);
+    bool res = await _voitaAudio.setProcessName(whereToRecord!);
+    if (res) {
+      _audioStream = _voitaAudio.getAudioStream();
+    }
+    else {
+      throw Exception("Couldn't start audio processing!");
+    }
   }
 
   @override
   void addListener(void Function(List<int>) listener) {
     _audioStreamSubscribition = _audioStream.listen(listener);
-    if (!_audioStreamSubscribition.isPaused) {
+    _audioStreamSubscribition.onDone(onStopProcessing);
       _isRecording = true;
-    }
   }
   
   // This particular implementation doesn't provide removing of the provided listener
@@ -29,6 +35,7 @@ class RecorderServiceWindows implements Recorder {
   @override
   void removeListener(void Function(List<int>) listener) async {
     await _audioStreamSubscribition.cancel();
+    _audioStreamSubscribition.onDone(() =>_isRecording = false);
     if (!_audioStreamSubscribition.isPaused) {
       _isRecording = false;
     }
@@ -37,9 +44,10 @@ class RecorderServiceWindows implements Recorder {
   @override
   Future<void> stopProcessing() async {
     await _audioStreamSubscribition.cancel();
-    if (!_audioStreamSubscribition.isPaused) {
-      _isRecording = false;
-    }
+  }
+
+  void onStopProcessing() {
+    _isRecording = false;
   }
 
   @override

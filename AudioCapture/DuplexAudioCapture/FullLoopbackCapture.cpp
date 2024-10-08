@@ -5,21 +5,22 @@
 #include <mmdeviceapi.h>
 #include <Windows.h>
 #include <Audioclient.h>
-#include "StreamCapture.h"
 #include <wil/result_macros.h>
 #include <future>
+#include <circular_buffer.h>
+#include "FullLoopbackCapture.h"
 
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
 #define BITS_PER_BYTE 8
 
-void StreamCapture::Init(circular_buffer<int16_t>* iBuffer, HANDLE* capture_event)
+void FullLoopbackCapture::Init(circular_buffer<int16_t>* iBuffer, HANDLE* capture_event)
 {
 	pIBuffer = iBuffer;
 	captured_event = capture_event;
 }
 
-HRESULT StreamCapture::ActivateAudioClient() 
+HRESULT FullLoopbackCapture::ActivateAudioClient() 
 {
 	RETURN_IF_FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
@@ -28,14 +29,14 @@ HRESULT StreamCapture::ActivateAudioClient()
 		CLSCTX_ALL, IID_IMMDeviceEnumerator,
 		(void**)&pEnum));
 
-	RETURN_IF_FAILED(pEnum->GetDefaultAudioEndpoint(eCapture, eConsole, &pDevice));
+	RETURN_IF_FAILED(pEnum->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice));
 
 	RETURN_IF_FAILED(pDevice->Activate(
 		IID_IAudioClient, CLSCTX_ALL,
 		NULL, (void**)&pAudioClient
 	));
 	RETURN_IF_FAILED(pAudioClient->GetMixFormat(&pStreamFormat));
-	
+
 	pStreamFormat->wFormatTag = WAVE_FORMAT_PCM;
 	pStreamFormat->nChannels = 1;
 	pStreamFormat->nSamplesPerSec = 16000;
@@ -48,7 +49,7 @@ HRESULT StreamCapture::ActivateAudioClient()
 	for (int i = 0; i < 20; i++)
 	{
 		hr = pAudioClient->Initialize(
-			AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM,
+			AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_LOOPBACK,
 			hnsBufferDuration, hnsPeriodicity,
 			pStreamFormat, nullptr
 		);
@@ -58,11 +59,11 @@ HRESULT StreamCapture::ActivateAudioClient()
 	}
 
 	if (hr == BUSY_DEVICE_ERROR) return BUSY_DEVICE_ERROR;
-	
+
 	return S_OK;
 }
 
-HRESULT StreamCapture::FinishCapture() {
+HRESULT FullLoopbackCapture::FinishCapture() {
 	isDone = true;
 	if (m_captureThread.joinable()) {
 		m_captureThread.join();
@@ -73,7 +74,7 @@ HRESULT StreamCapture::FinishCapture() {
 	return S_OK;
 }
 
-HRESULT StreamCapture::OnSampleReady() {
+HRESULT FullLoopbackCapture::OnSampleReady() {
 	
 	RETURN_IF_FAILED(pCaptureClient->GetNextPacketSize(&numFramesInNextPacket));
 
@@ -113,7 +114,7 @@ HRESULT StreamCapture::OnSampleReady() {
 	return S_OK;
 }
 
-HRESULT StreamCapture::OnStartCapture() {
+HRESULT FullLoopbackCapture::OnStartCapture() {
 	RETURN_IF_FAILED(pAudioClient->GetBufferSize(&bufferFrameCount));
 	RETURN_IF_FAILED(pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&pCaptureClient));
 
@@ -126,8 +127,8 @@ HRESULT StreamCapture::OnStartCapture() {
 }
 
 
-HRESULT StreamCapture::StartCaptureAsync(PCWSTR file)
-{	
+HRESULT FullLoopbackCapture::StartCaptureAsync(DWORD processId, bool includeProcessTree, PCWSTR file) 
+{
 	m_captureThread = std::thread([file, this]() {
 		HRESULT hr = ActivateAudioClient();
 
